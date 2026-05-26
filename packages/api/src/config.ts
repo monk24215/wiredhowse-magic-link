@@ -8,6 +8,8 @@ const configSchema = z.object({
   REDIS_URL: z.string().url('REDIS_URL must be a valid URL'),
   RESEND_API_KEY: z.string().min(1, 'RESEND_API_KEY is required'),
   RESEND_FROM: z.string().email().default('no-reply@magic-link.wiredhowse.app'),
+  EMAIL_FROM_NAME: z.string().default('wiredHowse Auth'),
+  EMAIL_REPLY_TO: z.string().email().default('support@wiredhowse.app'),
   SITE_URL: z.string().url().default('https://magic-link.wiredhowse.app'),
   WH_DISABLE_RATE_LIMITS: z.string().optional(),
 });
