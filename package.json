@@ -1,0 +1,29 @@
+{
+  "name": "wiredhowse-magic-link",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "dev:api": "pnpm --filter @wiredhowse/api dev",
+    "dev:web": "pnpm --filter @wiredhowse/web dev",
+    "db:generate": "pnpm --filter @wiredhowse/db db:generate",
+    "db:migrate": "pnpm --filter @wiredhowse/db db:migrate",
+    "db:studio": "pnpm --filter @wiredhowse/db db:studio"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^20.17.0",
+    "tsx": "^4.19.2",
+    "typescript": "~5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

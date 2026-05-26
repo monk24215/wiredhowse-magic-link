@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Typecheck · Lint · Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test
+
+  integration:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    # Only run once unit CI passes and test files actually exist
+    needs: ci
+    if: ${{ hashFiles('packages/api/test/integration/**/*.ts') != '' }}
+
+    services:
+      # testcontainers spins its own containers via Docker socket;
+      # these service containers are not used but Docker must be available.
+      docker:
+        image: docker:dind
+        options: --privileged
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Integration tests
+        run: pnpm --filter @wiredhowse/api test:integration
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
