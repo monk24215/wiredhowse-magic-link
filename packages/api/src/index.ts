@@ -5,6 +5,7 @@ import { config } from './config';
 import { registerGlobalErrorHandler } from './errors';
 import { registerRequestLogging } from './middleware/logging';
 import { healthRoutes } from './routes/health';
+import { magicRoutes } from './routes/magic/index';
 import { magicLinkRequestRoutes } from './routes/snippet/magic-link-request';
 
 const server = Fastify({
@@ -33,6 +34,9 @@ registerRequestLogging(server);
 
 // Health / readiness at top-level paths (no /v1 prefix — Railway uses /readyz)
 void server.register(healthRoutes);
+
+// Magic-link redemption (browser navigation — returns HTML or 302)
+void server.register(magicRoutes, { prefix: '/v1/magic' });
 
 // Snippet routes — called from customer sites (site-key + origin gated)
 void server.register(magicLinkRequestRoutes, { prefix: '/v1/snippet' });
