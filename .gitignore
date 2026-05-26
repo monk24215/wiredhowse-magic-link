@@ -4,6 +4,7 @@
 wiredhowse-magic-link.code-workspace
 PROJECT_BRIEF___wiredhowse-magic-link.md
 /spec
+Claude.md
 # Dependencies
 node_modules/
 install.php
