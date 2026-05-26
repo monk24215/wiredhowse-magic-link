@@ -1,7 +1,8 @@
 *.zip
 *.gz
 *errorlog*
-
+wiredhowse-magic-link.code-workspace
+PROJECT_BRIEF___wiredhowse-magic-link.md
 # Dependencies
 node_modules/
 install.php
