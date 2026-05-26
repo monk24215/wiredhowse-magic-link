@@ -1,9 +1,7 @@
 *.zip
 *.gz
 *errorlog*
-/portable-assistant
-.envman
-loadsite.bat
+
 # Dependencies
 node_modules/
 install.php
