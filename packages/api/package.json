@@ -16,6 +16,7 @@
     "@fastify/helmet": "^13.0.0",
     "@wiredhowse/db": "workspace:*",
     "@wiredhowse/shared": "workspace:*",
+    "drizzle-orm": "^0.38.3",
     "fastify": "^5.2.1",
     "ioredis": "^5.4.1",
     "resend": "^4.0.1",
@@ -23,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.0",
+    "pino-pretty": "^13.0.0",
     "vitest": "^2.1.8"
   }
 }

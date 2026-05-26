@@ -42,9 +42,7 @@ export interface SessionCheckBody {
   token?: string;
 }
 
-export type SessionCheckResponse =
-  | { valid: true; session: SessionData }
-  | { valid: false };
+export type SessionCheckResponse = { valid: true; session: SessionData } | { valid: false };
 
 // ---------------------------------------------------------------------------
 // /v1/snippet/magic-link/request
@@ -263,6 +261,7 @@ export interface WiredHowseIdentity {
 
 export interface HealthResponse {
   status: 'ok';
+  version: string;
 }
 
 export interface ReadinessResponse {

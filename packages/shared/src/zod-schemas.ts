@@ -6,9 +6,7 @@ import { z } from 'zod';
 
 export const emailSchema = z.string().email().max(254).toLowerCase();
 
-export const siteKeyHeaderSchema = z
-  .string()
-  .regex(/^pk_[A-Za-z0-9_-]{22,}$/, 'Invalid site key');
+export const siteKeyHeaderSchema = z.string().regex(/^pk_[A-Za-z0-9_-]{22,}$/, 'Invalid site key');
 
 const passwordSchema = z
   .string()
@@ -43,9 +41,7 @@ export const magicLinkRequestSchema = z.object({
 // ---------------------------------------------------------------------------
 
 export const handoffExchangeSchema = z.object({
-  handoff_token: z
-    .string()
-    .regex(/^wh_ho_[A-Za-z0-9_-]+$/, 'Invalid handoff token'),
+  handoff_token: z.string().regex(/^wh_ho_[A-Za-z0-9_-]+$/, 'Invalid handoff token'),
 });
 
 // ---------------------------------------------------------------------------
@@ -101,10 +97,7 @@ export const createSiteSchema = z.object({
 
 export const updateSiteSchema = z
   .object({
-    allowed_origins: z
-      .array(z.string().url())
-      .max(20)
-      .optional(),
+    allowed_origins: z.array(z.string().url()).max(20).optional(),
     state: z.enum(['live', 'disabled']).optional(),
   })
   .refine((v) => v.allowed_origins !== undefined || v.state !== undefined, {

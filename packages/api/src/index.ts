@@ -1,5 +1,8 @@
+import fastifyHelmet from '@fastify/helmet';
 import Fastify from 'fastify';
 import { config } from './config';
+import { registerGlobalErrorHandler } from './errors';
+import { registerRequestLogging } from './middleware/logging';
 import { healthRoutes } from './routes/health';
 
 const server = Fastify({
@@ -9,9 +12,18 @@ const server = Fastify({
       transport: { target: 'pino-pretty', options: { colorize: true } },
     }),
   },
+  // Trust Railway's load balancer for real client IP in request.ip
+  trustProxy: true,
 });
 
-server.register(healthRoutes, { prefix: '/v1' });
+// Security headers. CSP disabled — this is a JSON API, not an HTML host.
+void server.register(fastifyHelmet, { contentSecurityPolicy: false });
+
+registerGlobalErrorHandler(server);
+registerRequestLogging(server);
+
+// Health / readiness at top-level paths (no /v1 prefix — Railway uses /readyz)
+void server.register(healthRoutes);
 
 const start = async (): Promise<void> => {
   try {
@@ -23,4 +35,4 @@ const start = async (): Promise<void> => {
   }
 };
 
-start();
+void start();
