@@ -1,9 +1,11 @@
+import { randomBytes } from 'node:crypto';
 import fastifyHelmet from '@fastify/helmet';
 import Fastify from 'fastify';
 import { config } from './config';
 import { registerGlobalErrorHandler } from './errors';
 import { registerRequestLogging } from './middleware/logging';
 import { healthRoutes } from './routes/health';
+import { magicLinkRequestRoutes } from './routes/snippet/magic-link-request';
 
 const server = Fastify({
   logger: {
@@ -14,6 +16,13 @@ const server = Fastify({
   },
   // Trust Railway's load balancer for real client IP in request.ip
   trustProxy: true,
+  genReqId: () => `req_${randomBytes(9).toString('base64url')}`,
+});
+
+// Emit X-Request-Id on every response for client-side correlation
+server.addHook('onSend', (request, reply, _payload, done) => {
+  void reply.header('X-Request-Id', request.id);
+  done();
 });
 
 // Security headers. CSP disabled — this is a JSON API, not an HTML host.
@@ -24,6 +33,9 @@ registerRequestLogging(server);
 
 // Health / readiness at top-level paths (no /v1 prefix — Railway uses /readyz)
 void server.register(healthRoutes);
+
+// Snippet routes — called from customer sites (site-key + origin gated)
+void server.register(magicLinkRequestRoutes, { prefix: '/v1/snippet' });
 
 const start = async (): Promise<void> => {
   try {
