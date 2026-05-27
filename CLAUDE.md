@@ -147,9 +147,9 @@ Each `/clear` is cheap because this file + the brief + `spec/00_overview.md` get
 - [ ] DNS records configured + Resend domain verified
 - [x] `packages/snippet` core structure (6a) + iframe UI bundle (6b) + static asset routes (6c)
 - [ ] `packages/web` dashboard pages
-- [ ] Site Owner signup + email verification
+- [x] Site Owner signup + email verification (7a)
 - [ ] Domain ownership verification (DNS + meta)
-- [ ] Google OAuth (Site Owners only)
+- [x] Google OAuth (Site Owners only) (7a)
 - [ ] `/me` self-service pages
 - [ ] Close-and-archive flow
 - [ ] CSRF protection on dashboard mutations
