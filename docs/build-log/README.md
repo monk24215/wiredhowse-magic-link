@@ -38,7 +38,7 @@ After each chunk completes in Claude Code:
 | 6b  | Iframe UI bundle                               | ✅ Complete   | Opus 4.7      | `06b_iframe_ui.md`           |
 | 6c  | Static serving + api integration               | ✅ Complete   | Sonnet 4.6    | `06c_snippet_serving.md`     |
 | 7a  | Site Owner auth (api + web)                    | ✅ Complete   | Sonnet 4.6    | `07a_site_owner_auth.md`     |
-| 7b  | Sites management (api + web)                   | ⚪ Not started | —            | —                            |
+| 7b  | Sites management (api + web)                   | ✅ Complete   | Sonnet 4.6    | `07b_sites_management.md`    |
 | 7c  | End User self-service (`/v1/me/*` + /me page)  | ⚪ Not started | —            | —                            |
 | 7d  | CSRF protection + auth integration tests       | ⚪ Not started | —            | —                            |
 | 8   | Cron service (cleanup + archive purge)         | ⚪ Not started | —            | —                            |
@@ -51,6 +51,7 @@ Legend: ✅ Complete · 🟡 In progress · 🔴 Blocked · ⚪ Not started
 - **Backend auth complete** (after chunk 5e): every End User auth endpoint shipped with full lifecycle integration tests.
 - **Customer-facing surface complete** (after chunk 6c): a customer site can embed the snippet and run the full magic-link flow against the live api.
 - **Site Owner can sign in** (after chunk 7a): signup, email verification, password login, Google OAuth, password reset all working through the dashboard.
+- **Site Owner full lifecycle** (after chunk 7b): owners can sign up, verify email, log in, create up to 3 sites, verify domain ownership, manage allowed origins, view live metrics, clear sessions, disable, and delete. Dashboard is functionally complete for the Site Owner role.
 
 ## Open follow-ups across chunks
 

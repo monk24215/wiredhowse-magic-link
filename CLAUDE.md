@@ -150,8 +150,8 @@ Each `/clear` is cheap because this file + the brief + `spec/00_overview.md` get
 - [x] Site Owner signup + email verification (7a)
 - [ ] Domain ownership verification (DNS + meta)
 - [x] Google OAuth (Site Owners only) (7a)
-- [ ] `/me` self-service pages
-- [ ] Close-and-archive flow
+- [x] `/me` self-service pages (7c)
+- [x] Close-and-archive flow (7c)
 - [ ] CSRF protection on dashboard mutations
 - [ ] Cron service (cleanup + archive purge)
 - [ ] CI: typecheck + lint + unit + integration

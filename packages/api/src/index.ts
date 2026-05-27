@@ -7,6 +7,8 @@ import { registerRequestLogging } from './middleware/logging';
 import { authRoutes } from './routes/auth/index';
 import { dashboardRoutes } from './routes/dashboard/index';
 import { healthRoutes } from './routes/health';
+import { identityRoutes } from './routes/identity/index';
+import { meRoutes } from './routes/me/index';
 import { magicRoutes } from './routes/magic/index';
 import { snippetAssetRoutes } from './routes/snippet-assets';
 import { handoffExchangeRoutes } from './routes/snippet/handoff-exchange';
@@ -58,6 +60,12 @@ void server.register(authRoutes, { prefix: '/v1/auth' });
 
 // Site Owner dashboard — sites CRUD, domain verify, metrics, account
 void server.register(dashboardRoutes, { prefix: '/v1/dashboard' });
+
+// End User self-service — profile, sessions, close-and-archive, export
+void server.register(meRoutes, { prefix: '/v1/me' });
+
+// SSO identity contract — called by other wiredHowse apps with a session token
+void server.register(identityRoutes, { prefix: '/v1/identity' });
 
 const start = async (): Promise<void> => {
   try {

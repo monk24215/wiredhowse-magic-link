@@ -21,3 +21,9 @@ export function addDays(date: Date, days: number): Date {
 export function isPast(date: Date): boolean {
   return date < new Date();
 }
+
+export function addMonths(date: Date, months: number): Date {
+  const d = new Date(date);
+  d.setUTCMonth(d.getUTCMonth() + months);
+  return d;
+}
