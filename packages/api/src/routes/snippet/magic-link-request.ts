@@ -1,7 +1,6 @@
-import { db, magicLinks, sites } from '@wiredhowse/db';
-import { ErrorCode, magicLinkRequestSchema, siteKeyHeaderSchema } from '@wiredhowse/shared';
-import { eq } from 'drizzle-orm';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { db, magicLinks } from '@wiredhowse/db';
+import { ErrorCode, magicLinkRequestSchema } from '@wiredhowse/shared';
+import type { FastifyInstance } from 'fastify';
 import { config } from '../../config';
 import { send400, sendError } from '../../errors';
 import { generateToken, hashToken } from '../../lib/crypto';
@@ -15,30 +14,9 @@ import {
   checkMagicLinkPerSite,
   setRateLimitHeaders,
 } from '../../services/rate-limit';
+import { resolveSite } from './shared';
 
 const MAGIC_LINK_TTL_SEC = 15 * 60; // 900 seconds (spec: 15-minute lifetime)
-
-type Site = typeof sites.$inferSelect;
-
-/** Resolves site from X-Site-Key header. Sends 403 and returns null on failure. */
-async function resolveSite(request: FastifyRequest, reply: FastifyReply): Promise<Site | null> {
-  const rawKey = request.headers['x-site-key'];
-  if (typeof rawKey !== 'string') {
-    sendError(reply, 403, ErrorCode.INVALID_SITE_KEY, 'Missing X-Site-Key header');
-    return null;
-  }
-  const keyParsed = siteKeyHeaderSchema.safeParse(rawKey);
-  if (!keyParsed.success) {
-    sendError(reply, 403, ErrorCode.INVALID_SITE_KEY, 'Invalid site key format');
-    return null;
-  }
-  const [site] = await db.select().from(sites).where(eq(sites.siteKey, rawKey)).limit(1);
-  if (!site) {
-    sendError(reply, 403, ErrorCode.INVALID_SITE_KEY, 'Site key not found');
-    return null;
-  }
-  return site;
-}
 
 export async function magicLinkRequestRoutes(app: FastifyInstance): Promise<void> {
   // Handle CORS preflight for browsers that send OPTIONS before POST

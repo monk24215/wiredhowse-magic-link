@@ -1,12 +1,13 @@
-import { db, endUsers, handoffTokens, sessions, sites } from '@wiredhowse/db';
-import { ErrorCode, handoffExchangeSchema, siteKeyHeaderSchema } from '@wiredhowse/shared';
+import { db, endUsers, handoffTokens, sessions } from '@wiredhowse/db';
+import { ErrorCode, handoffExchangeSchema } from '@wiredhowse/shared';
 import { eq } from 'drizzle-orm';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { send400, sendError } from '../../errors';
 import { hashToken } from '../../lib/crypto';
 import { hashForLog } from '../../lib/hashing';
 import { nowUtc } from '../../lib/time';
 import { applySnippetCors } from '../../middleware/cors';
+import { resolveSite } from './shared';
 
 // ---------------------------------------------------------------------------
 // Local error sentinels — caught in the try/catch below, never leaked.
@@ -14,33 +15,6 @@ import { applySnippetCors } from '../../middleware/cors';
 
 class HandoffInvalidError extends Error {}
 class SiteMismatchError extends Error {}
-
-// ---------------------------------------------------------------------------
-// Shared helper: resolve the Site from the X-Site-Key header.
-// Duplicated from magic-link-request.ts — extract to a shared snippet helper
-// when a third route joins this group.
-// ---------------------------------------------------------------------------
-
-type Site = typeof sites.$inferSelect;
-
-async function resolveSite(request: FastifyRequest, reply: FastifyReply): Promise<Site | null> {
-  const rawKey = request.headers['x-site-key'];
-  if (typeof rawKey !== 'string') {
-    sendError(reply, 403, ErrorCode.INVALID_SITE_KEY, 'Missing X-Site-Key header');
-    return null;
-  }
-  const keyParsed = siteKeyHeaderSchema.safeParse(rawKey);
-  if (!keyParsed.success) {
-    sendError(reply, 403, ErrorCode.INVALID_SITE_KEY, 'Invalid site key format');
-    return null;
-  }
-  const [site] = await db.select().from(sites).where(eq(sites.siteKey, rawKey)).limit(1);
-  if (!site) {
-    sendError(reply, 403, ErrorCode.INVALID_SITE_KEY, 'Site key not found');
-    return null;
-  }
-  return site;
-}
 
 // ---------------------------------------------------------------------------
 // Route registration
