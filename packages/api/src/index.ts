@@ -4,6 +4,7 @@ import Fastify from 'fastify';
 import { config } from './config';
 import { registerGlobalErrorHandler } from './errors';
 import { registerRequestLogging } from './middleware/logging';
+import { authRoutes } from './routes/auth/index';
 import { healthRoutes } from './routes/health';
 import { magicRoutes } from './routes/magic/index';
 import { snippetAssetRoutes } from './routes/snippet-assets';
@@ -50,6 +51,9 @@ void server.register(magicLinkRequestRoutes, { prefix: '/v1/snippet' });
 void server.register(handoffExchangeRoutes, { prefix: '/v1/snippet' });
 void server.register(sessionCheckRoutes, { prefix: '/v1/snippet' });
 void server.register(signOutRoutes, { prefix: '/v1/snippet' });
+
+// Site Owner auth — signup, login, logout, email verify, password reset, Google OAuth
+void server.register(authRoutes, { prefix: '/v1/auth' });
 
 const start = async (): Promise<void> => {
   try {

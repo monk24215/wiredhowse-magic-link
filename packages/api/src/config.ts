@@ -12,6 +12,11 @@ const configSchema = z.object({
   EMAIL_REPLY_TO: z.string().email().default('support@wiredhowse.app'),
   SITE_URL: z.string().url().default('https://magic-link.wiredhowse.app'),
   WH_DISABLE_RATE_LIMITS: z.string().optional(),
+  // Google OAuth (optional — OAuth routes return 501 if absent)
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+  // Cookie domain restriction (optional — set to magic-link.wiredhowse.app in prod)
+  SESSION_COOKIE_DOMAIN: z.string().optional(),
 });
 
 const parsed = configSchema.safeParse(process.env);

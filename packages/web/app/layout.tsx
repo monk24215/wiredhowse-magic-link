@@ -1,8 +1,12 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'wiredHowse Magic Link',
+  title: {
+    default: 'wiredHowse Auth',
+    template: '%s · wiredHowse Auth',
+  },
   description: 'Free hosted magic-link authentication for your site.',
 };
 
