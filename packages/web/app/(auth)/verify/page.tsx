@@ -1,12 +1,12 @@
 'use client';
 
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ApiError, api } from '@/lib/api';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 
 type State = 'loading' | 'success' | 'error' | 'missing_token';
 
@@ -82,9 +82,7 @@ function VerifyContent() {
       <Card>
         <CardHeader>
           <CardTitle>Invalid link</CardTitle>
-          <CardDescription>
-            No verification token was found in this URL.
-          </CardDescription>
+          <CardDescription>No verification token was found in this URL.</CardDescription>
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">

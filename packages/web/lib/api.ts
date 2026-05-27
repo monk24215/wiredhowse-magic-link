@@ -18,11 +18,7 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(
-  method: string,
-  path: string,
-  body?: unknown,
-): Promise<T> {
+async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const init: RequestInit = {
     method,
     credentials: 'include', // send the wh_owner_session cookie
@@ -49,6 +45,8 @@ async function request<T>(
 }
 
 export const api = {
-  post: <T>(path: string, body: unknown) => request<T>('POST', path, body),
   get: <T>(path: string) => request<T>('GET', path),
+  post: <T>(path: string, body: unknown) => request<T>('POST', path, body),
+  patch: <T>(path: string, body: unknown) => request<T>('PATCH', path, body),
+  delete: <T>(path: string, body?: unknown) => request<T>('DELETE', path, body),
 };

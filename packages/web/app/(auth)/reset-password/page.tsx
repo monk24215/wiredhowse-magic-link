@@ -1,14 +1,14 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ApiError, api } from '@/lib/api';
+import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 
 // ---------------------------------------------------------------------------
 // Request-reset form (no token in URL)
@@ -133,9 +133,7 @@ function SetPasswordForm({ token }: { token: string }) {
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.code === 'INVALID_TOKEN') {
-          setError(
-            'This reset link is invalid or has expired. Please request a new one.',
-          );
+          setError('This reset link is invalid or has expired. Please request a new one.');
         } else if (err.code === 'VALIDATION_ERROR') {
           setError(err.message);
         } else {
