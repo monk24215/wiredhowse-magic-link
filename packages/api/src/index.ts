@@ -5,6 +5,7 @@ import { config } from './config';
 import { registerGlobalErrorHandler } from './errors';
 import { registerRequestLogging } from './middleware/logging';
 import { authRoutes } from './routes/auth/index';
+import { dashboardRoutes } from './routes/dashboard/index';
 import { healthRoutes } from './routes/health';
 import { magicRoutes } from './routes/magic/index';
 import { snippetAssetRoutes } from './routes/snippet-assets';
@@ -54,6 +55,9 @@ void server.register(signOutRoutes, { prefix: '/v1/snippet' });
 
 // Site Owner auth — signup, login, logout, email verify, password reset, Google OAuth
 void server.register(authRoutes, { prefix: '/v1/auth' });
+
+// Site Owner dashboard — sites CRUD, domain verify, metrics, account
+void server.register(dashboardRoutes, { prefix: '/v1/dashboard' });
 
 const start = async (): Promise<void> => {
   try {
