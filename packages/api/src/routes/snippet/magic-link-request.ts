@@ -2,6 +2,8 @@ import { db, magicLinks, sites } from '@wiredhowse/db';
 import { ErrorCode, magicLinkRequestSchema, siteKeyHeaderSchema } from '@wiredhowse/shared';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { config } from '../../config';
+import { send400, sendError } from '../../errors';
 import { generateToken, hashToken } from '../../lib/crypto';
 import { hashBytes, hashForLog } from '../../lib/hashing';
 import { addSeconds, nowUtc } from '../../lib/time';
@@ -13,8 +15,6 @@ import {
   checkMagicLinkPerSite,
   setRateLimitHeaders,
 } from '../../services/rate-limit';
-import { send400, sendError } from '../../errors';
-import { config } from '../../config';
 
 const MAGIC_LINK_TTL_SEC = 15 * 60; // 900 seconds (spec: 15-minute lifetime)
 

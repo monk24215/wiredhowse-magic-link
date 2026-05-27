@@ -34,9 +34,15 @@ vi.mock('../../src/services/email', () => ({
 }));
 
 vi.mock('../../src/services/rate-limit', () => ({
-  checkMagicLinkPerIp: vi.fn().mockResolvedValue({ allowed: true, current: 1, limit: 10, resetAt: 9999999999 }),
-  checkMagicLinkPerSite: vi.fn().mockResolvedValue({ allowed: true, current: 1, limit: 50, resetAt: 9999999999 }),
-  checkMagicLinkPerEmail: vi.fn().mockResolvedValue({ allowed: true, current: 1, limit: 3, resetAt: 9999999999 }),
+  checkMagicLinkPerIp: vi
+    .fn()
+    .mockResolvedValue({ allowed: true, current: 1, limit: 10, resetAt: 9999999999 }),
+  checkMagicLinkPerSite: vi
+    .fn()
+    .mockResolvedValue({ allowed: true, current: 1, limit: 50, resetAt: 9999999999 }),
+  checkMagicLinkPerEmail: vi
+    .fn()
+    .mockResolvedValue({ allowed: true, current: 1, limit: 3, resetAt: 9999999999 }),
   setRateLimitHeaders: vi.fn(),
 }));
 
@@ -80,9 +86,24 @@ describe('POST /v1/snippet/magic-link/request', () => {
     app = buildApp();
     await app.ready();
     mockDbSelect.mockResolvedValue([LIVE_SITE]);
-    vi.mocked(rateLimitModule.checkMagicLinkPerIp).mockResolvedValue({ allowed: true, current: 1, limit: 10, resetAt: 9999999999 });
-    vi.mocked(rateLimitModule.checkMagicLinkPerSite).mockResolvedValue({ allowed: true, current: 1, limit: 50, resetAt: 9999999999 });
-    vi.mocked(rateLimitModule.checkMagicLinkPerEmail).mockResolvedValue({ allowed: true, current: 1, limit: 3, resetAt: 9999999999 });
+    vi.mocked(rateLimitModule.checkMagicLinkPerIp).mockResolvedValue({
+      allowed: true,
+      current: 1,
+      limit: 10,
+      resetAt: 9999999999,
+    });
+    vi.mocked(rateLimitModule.checkMagicLinkPerSite).mockResolvedValue({
+      allowed: true,
+      current: 1,
+      limit: 50,
+      resetAt: 9999999999,
+    });
+    vi.mocked(rateLimitModule.checkMagicLinkPerEmail).mockResolvedValue({
+      allowed: true,
+      current: 1,
+      limit: 3,
+      resetAt: 9999999999,
+    });
     vi.mocked(sendMagicLinkEmail).mockResolvedValue({ id: 'email_123' });
   });
 
@@ -130,7 +151,9 @@ describe('POST /v1/snippet/magic-link/request', () => {
     const emailArgs = vi.mocked(sendMagicLinkEmail).mock.calls[0]?.[0];
     expect(emailArgs?.to).toBe('alice@example.com');
     expect(emailArgs?.siteDomain).toBe('example.com');
-    expect(emailArgs?.magicLinkUrl).toMatch(/^https:\/\/magic-link\.wiredhowse\.app\/v1\/magic\/redeem\?token=wh_ml_/);
+    expect(emailArgs?.magicLinkUrl).toMatch(
+      /^https:\/\/magic-link\.wiredhowse\.app\/v1\/magic\/redeem\?token=wh_ml_/,
+    );
   });
 
   it('sets X-Request-Id response header', async () => {

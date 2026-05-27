@@ -25,15 +25,18 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
   app.get('/redeem', async (request, reply) => {
     void reply.header('Cache-Control', 'no-store, no-cache, must-revalidate');
 
-    const token = (request.query as Record<string, string>)['token'];
+    const token = (request.query as Record<string, string>).token;
 
     if (!token || !ML_TOKEN_RE.test(token)) {
-      return reply.code(404).type(HTML).send(
-        renderErrorHtml(
-          'Link expired or already used',
-          'This magic link has expired or has already been used. Please return to the site and request a new one.',
-        ),
-      );
+      return reply
+        .code(404)
+        .type(HTML)
+        .send(
+          renderErrorHtml(
+            'Link expired or already used',
+            'This magic link has expired or has already been used. Please return to the site and request a new one.',
+          ),
+        );
     }
 
     const tokenHash = hashToken(token);
@@ -41,8 +44,8 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
     const uaHash = hashBytes(request.headers['user-agent'] ?? '');
 
     try {
-      const { handoffTokenRaw, redirectOrigin, requestedIpHash } =
-        await db.transaction(async (tx) => {
+      const { handoffTokenRaw, redirectOrigin, requestedIpHash } = await db.transaction(
+        async (tx) => {
           // SELECT FOR UPDATE prevents a concurrent request from redeeming the same link
           const [ml] = await tx
             .select()
@@ -55,11 +58,7 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
             throw new MagicLinkInvalidError();
           }
 
-          const [site] = await tx
-            .select()
-            .from(sites)
-            .where(eq(sites.id, ml.siteId))
-            .limit(1);
+          const [site] = await tx.select().from(sites).where(eq(sites.id, ml.siteId)).limit(1);
 
           if (!site || site.state !== 'live' || site.allowedOrigins.length === 0) {
             throw new SiteNotLiveError();
@@ -101,12 +100,7 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
           const countRows = await tx
             .select({ n: sql<number>`cast(count(*) as integer)` })
             .from(loginHistory)
-            .where(
-              and(
-                eq(loginHistory.endUserId, endUser.id),
-                eq(loginHistory.siteId, site.id),
-              ),
-            );
+            .where(and(eq(loginHistory.endUserId, endUser.id), eq(loginHistory.siteId, site.id)));
           const priorLoginCount = countRows[0]?.n ?? 0;
 
           const durationSec = loginTierDuration(priorLoginCount);
@@ -129,7 +123,8 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
             })
             .returning({ id: sessions.id });
 
-          const sessionId = session!.id;
+          if (!session) throw new Error('Session INSERT returned no row');
+          const sessionId = session.id;
 
           // INSERT handoff_token — 60-second bridge back to the snippet
           const hoTokenRaw = generateToken('wh_ho_');
@@ -154,12 +149,17 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
             .set({ redeemedAt: now, redeemedIpHash })
             .where(eq(magicLinks.id, ml.id));
 
+          // allowedOrigins.length > 0 is already checked above; this is a safety guard.
+          const redirectOrigin = site.allowedOrigins[0];
+          if (!redirectOrigin) throw new SiteNotLiveError();
+
           return {
             handoffTokenRaw: hoTokenRaw,
-            redirectOrigin: site.allowedOrigins[0]!,
+            redirectOrigin,
             requestedIpHash: ml.requestedIpHash,
           };
-        });
+        },
+      );
 
       // Informational only — flag cross-IP redemptions for abuse review
       if (!requestedIpHash.equals(redeemedIpHash)) {
@@ -176,28 +176,37 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
       return reply.code(302).header('Location', location).send('');
     } catch (err) {
       if (err instanceof SiteNotLiveError) {
-        return reply.code(410).type(HTML).send(
-          renderErrorHtml(
-            'Site not available',
-            'This site is no longer protected by magic-link authentication.',
-          ),
-        );
+        return reply
+          .code(410)
+          .type(HTML)
+          .send(
+            renderErrorHtml(
+              'Site not available',
+              'This site is no longer protected by magic-link authentication.',
+            ),
+          );
       }
       if (err instanceof MagicLinkInvalidError) {
-        return reply.code(404).type(HTML).send(
-          renderErrorHtml(
-            'Link expired or already used',
-            'This magic link has expired or has already been used. Please return to the site and request a new one.',
-          ),
-        );
+        return reply
+          .code(404)
+          .type(HTML)
+          .send(
+            renderErrorHtml(
+              'Link expired or already used',
+              'This magic link has expired or has already been used. Please return to the site and request a new one.',
+            ),
+          );
       }
       request.log.error({ err }, 'Unexpected error during magic-link redemption');
-      return reply.code(500).type(HTML).send(
-        renderErrorHtml(
-          'Something went wrong',
-          'An unexpected error occurred. Please try again or request a new magic link.',
-        ),
-      );
+      return reply
+        .code(500)
+        .type(HTML)
+        .send(
+          renderErrorHtml(
+            'Something went wrong',
+            'An unexpected error occurred. Please try again or request a new magic link.',
+          ),
+        );
     }
   });
 }

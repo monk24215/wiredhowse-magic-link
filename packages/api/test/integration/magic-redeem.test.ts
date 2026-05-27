@@ -1,16 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { GenericContainer, Wait, type StartedTestContainer } from 'testcontainers';
-import {
-  afterAll,
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { GenericContainer, type StartedTestContainer, Wait } from 'testcontainers';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // ---------------------------------------------------------------------------
 // Bootstrap — runs before vi.mock hoisting, sets placeholder env vars so any
@@ -43,9 +34,9 @@ vi.mock('../../src/config', () => ({
 // The getter makes the export a live reference so route modules always see
 // the current value when they call db.select() etc.
 // eslint-disable-next-line prefer-const
-const dbHolder = vi.hoisted<{ current: ReturnType<typeof drizzle> | null }>(
-  () => ({ current: null }),
-);
+const dbHolder = vi.hoisted<{ current: ReturnType<typeof drizzle> | null }>(() => ({
+  current: null,
+}));
 
 vi.mock('@wiredhowse/db', async () => {
   // Import schema and id helpers directly from source (no DB connection needed)
@@ -64,8 +55,8 @@ vi.mock('@wiredhowse/db', async () => {
 // Deferred imports — must come after vi.mock registrations
 // ---------------------------------------------------------------------------
 
-import Fastify, { type FastifyInstance } from 'fastify';
 import { eq } from 'drizzle-orm';
+import Fastify, { type FastifyInstance } from 'fastify';
 
 // These are imported through the mocked @wiredhowse/db — resolved by Vitest
 import {
@@ -78,12 +69,12 @@ import {
   sites,
 } from '@wiredhowse/db';
 
+import { runMigrations } from '../../../db/src/migrate';
 import { registerGlobalErrorHandler } from '../../src/errors';
 import { hashToken } from '../../src/lib/crypto';
 import { hashBytes } from '../../src/lib/hashing';
 import { addSeconds, nowUtc } from '../../src/lib/time';
 import { magicRoutes } from '../../src/routes/magic/index';
-import { runMigrations } from '../../../db/src/migrate';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -106,10 +97,14 @@ async function seedSiteOwner() {
       authMethod: 'password',
     })
     .returning({ id: siteOwners.id });
-  return owner!.id;
+  if (!owner) throw new Error('seedSiteOwner: INSERT returned no row');
+  return owner.id;
 }
 
-async function seedSite(siteOwnerId: string, state: 'live' | 'disabled' | 'pending_verification' = 'live') {
+async function seedSite(
+  siteOwnerId: string,
+  state: 'live' | 'disabled' | 'pending_verification' = 'live',
+) {
   const db = testDb();
   const [site] = await db
     .insert(sites)
@@ -122,20 +117,18 @@ async function seedSite(siteOwnerId: string, state: 'live' | 'disabled' | 'pendi
       allowedOrigins: ['https://test.example.com'],
     })
     .returning();
-  return site!;
+  if (!site) throw new Error('seedSite: INSERT returned no row');
+  return site;
 }
 
-async function seedMagicLink(
-  siteId: string,
-  opts: { expired?: boolean; redeemed?: boolean } = {},
-) {
+async function seedMagicLink(siteId: string, opts: { expired?: boolean; redeemed?: boolean } = {}) {
   const db = testDb();
   const raw = `wh_ml_TESTTOKEN${Date.now()}`;
   const tokenHash = hashToken(raw);
   const ip = '127.0.0.1';
   const expiresAt = opts.expired
-    ? addSeconds(nowUtc(), -60)    // 1 min in the past
-    : addSeconds(nowUtc(), 900);   // 15 min in the future
+    ? addSeconds(nowUtc(), -60) // 1 min in the past
+    : addSeconds(nowUtc(), 900); // 15 min in the future
 
   const [ml] = await db
     .insert(magicLinks)
@@ -149,7 +142,8 @@ async function seedMagicLink(
       requestedUserAgentHash: hashBytes('vitest'),
     })
     .returning();
-  return { rawToken: raw, ml: ml! };
+  if (!ml) throw new Error('seedMagicLink: INSERT returned no row');
+  return { rawToken: raw, ml };
 }
 
 // ---------------------------------------------------------------------------
@@ -219,7 +213,7 @@ describe('GET /v1/magic/preflight', () => {
     expect(res.statusCode).toBe(200);
     const body = res.json<{ data: { email: string; site_domain: string; expires_at: string } }>();
     expect(body.data.email).toMatch(/\*\*\*/);
-    expect(body.data.email).not.toContain('@test.example');  // masked
+    expect(body.data.email).not.toContain('@test.example'); // masked
     expect(body.data.site_domain).toBe(site.domain);
     expect(body.data.expires_at).toBe(ml.expiresAt.toISOString());
   });
@@ -368,14 +362,18 @@ describe('GET /v1/magic/redeem', () => {
   it('reuses existing end_user row for a returning email', async () => {
     // First redemption — creates end_user
     const { rawToken: token1 } = await seedMagicLink(site.id);
-    await app.inject({ method: 'GET', url: `/v1/magic/redeem?token=${encodeURIComponent(token1)}` });
+    await app.inject({
+      method: 'GET',
+      url: `/v1/magic/redeem?token=${encodeURIComponent(token1)}`,
+    });
 
     // Seed a second link for the same email in the same site
     const [firstUser] = await testDb().select().from(endUsers);
+    if (!firstUser) throw new Error('No end_user after first redemption');
     const ml2Raw = `wh_ml_SECOND${Date.now()}`;
     const db = testDb();
     await db.insert(magicLinks).values({
-      email: firstUser!.email,
+      email: firstUser.email,
       siteId: site.id,
       tokenHash: hashToken(ml2Raw),
       expiresAt: addSeconds(nowUtc(), 900),
@@ -386,7 +384,10 @@ describe('GET /v1/magic/redeem', () => {
     const countBefore = (await testDb().select().from(endUsers)).length;
 
     // Second redemption — should reuse the same end_user
-    await app.inject({ method: 'GET', url: `/v1/magic/redeem?token=${encodeURIComponent(ml2Raw)}` });
+    await app.inject({
+      method: 'GET',
+      url: `/v1/magic/redeem?token=${encodeURIComponent(ml2Raw)}`,
+    });
 
     const countAfter = (await testDb().select().from(endUsers)).length;
     expect(countAfter).toBe(countBefore);
@@ -401,7 +402,8 @@ describe('GET /v1/magic/redeem', () => {
     });
 
     const [sess] = await testDb().select().from(sessions);
-    const durationMs = sess!.expiresAt.getTime() - sess!.createdAt.getTime();
+    if (!sess) throw new Error('No session row after redemption');
+    const durationMs = sess.expiresAt.getTime() - sess.createdAt.getTime();
     const durationHours = durationMs / (1000 * 3600);
     expect(durationHours).toBeCloseTo(2, 0);
   });

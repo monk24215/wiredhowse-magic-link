@@ -12,7 +12,7 @@ export async function magicPreflightRoutes(app: FastifyInstance): Promise<void> 
   app.get('/preflight', async (request, reply) => {
     void reply.header('Cache-Control', 'no-store');
 
-    const token = (request.query as Record<string, string>)['token'];
+    const token = (request.query as Record<string, string>).token;
 
     if (!token || !ML_TOKEN_RE.test(token)) {
       return sendError(reply, 404, ErrorCode.INVALID_TOKEN, 'Magic link not found or expired');

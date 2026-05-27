@@ -24,9 +24,7 @@ describe('maskEmail', () => {
   });
 
   it('handles a longer email', () => {
-    expect(maskEmail('hello.world+tag@mail.example.com')).toBe(
-      'h***g@mail.example.com',
-    );
+    expect(maskEmail('hello.world+tag@mail.example.com')).toBe('h***g@mail.example.com');
   });
 
   it('returns fallback for malformed input with no @', () => {
