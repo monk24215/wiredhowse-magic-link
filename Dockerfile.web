@@ -1,0 +1,53 @@
+FROM node:20-alpine AS base
+RUN corepack enable
+
+# ── Install deps ──────────────────────────────────────────────────────────────
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/web/package.json ./packages/web/
+COPY packages/shared/package.json ./packages/shared/
+RUN pnpm install --frozen-lockfile
+
+# ── Build ─────────────────────────────────────────────────────────────────────
+FROM deps AS builder
+WORKDIR /app
+COPY tsconfig.base.json ./
+COPY packages/shared ./packages/shared
+COPY packages/web ./packages/web
+
+# Build shared first (web depends on it for types during next build).
+RUN pnpm --filter @wiredhowse/shared build
+
+# INTERNAL_API_URL must be set in Railway env vars for the Next.js rewrites to
+# point at the api service's private domain.  Next.js bakes rewrites into the
+# build output, so this env var is consumed at build time, not at runtime.
+# Local dev default: http://localhost:3001
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN pnpm --filter @wiredhowse/web build
+
+# ── Production runtime ────────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# node_modules (contains Next.js runtime and all other prod deps).
+COPY --from=builder /app/node_modules ./node_modules
+
+# Next.js compiled output + config.
+COPY --from=builder /app/packages/web/.next ./packages/web/.next
+COPY --from=builder /app/packages/web/public ./packages/web/public
+COPY --from=builder /app/packages/web/package.json ./packages/web/
+COPY --from=builder /app/packages/web/next.config.ts ./packages/web/
+
+# @wiredhowse/shared is listed as a dep but not used at runtime in web
+# (imported only as TypeScript types; no runtime require() in any web file).
+# No workspace package copy needed for web runner.
+
+EXPOSE 3000
+ENV PORT=3000
+
+# Run next start from packages/web so it finds .next/ and public/ correctly.
+WORKDIR /app/packages/web
+CMD ["/app/node_modules/.bin/next", "start", "-p", "3000"]

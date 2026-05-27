@@ -1,0 +1,68 @@
+FROM node:20-alpine AS base
+RUN corepack enable
+
+# ── Install all deps (dev included — needed for build tools) ──────────────────
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY packages/api/package.json ./packages/api/
+COPY packages/db/package.json ./packages/db/
+COPY packages/shared/package.json ./packages/shared/
+RUN pnpm install --frozen-lockfile
+
+# ── Build workspace packages ──────────────────────────────────────────────────
+FROM deps AS builder
+WORKDIR /app
+COPY tsconfig.base.json ./
+COPY packages/shared ./packages/shared
+COPY packages/db ./packages/db
+COPY packages/api ./packages/api
+
+# Build in dependency order.
+RUN pnpm --filter @wiredhowse/shared build
+RUN pnpm --filter @wiredhowse/db build
+RUN pnpm --filter @wiredhowse/api build
+
+# Patch workspace package.json main fields so Node can resolve compiled JS at
+# runtime.  During build, tsc resolves ./src/index.ts directly (TypeScript
+# knows the type); at runtime Node needs ./dist/index.js.
+RUN node -e "\
+  const fs = require('fs'); \
+  ['packages/db', 'packages/shared'].forEach(dir => { \
+    const f = dir + '/package.json'; \
+    const pkg = JSON.parse(fs.readFileSync(f, 'utf8')); \
+    pkg.main = './dist/index.js'; \
+    pkg.types = './dist/index.d.ts'; \
+    fs.writeFileSync(f, JSON.stringify(pkg, null, 2)); \
+  });"
+
+# ── Production runtime ────────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Root workspace manifest (required for pnpm symlink resolution).
+COPY --from=builder /app/package.json ./
+
+# @wiredhowse/shared — compiled JS only.
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/packages/shared/package.json ./packages/shared/
+
+# @wiredhowse/db — compiled JS + migration SQL files.
+# MIGRATIONS_DIR = path.resolve(__dirname, '..', 'migrations') → packages/db/migrations/
+COPY --from=builder /app/packages/db/dist ./packages/db/dist
+COPY --from=builder /app/packages/db/migrations ./packages/db/migrations
+COPY --from=builder /app/packages/db/package.json ./packages/db/
+
+# API compiled output.
+COPY --from=builder /app/packages/api/dist ./packages/api/dist
+COPY --from=builder /app/packages/api/package.json ./packages/api/
+
+# Full node_modules — contains pnpm virtual store and workspace symlinks.
+# Symlinks for @wiredhowse/* resolve to /app/packages/{db,shared} above.
+COPY --from=builder /app/node_modules ./node_modules
+
+EXPOSE 3001
+# Migrations run programmatically in packages/api/src/index.ts before Fastify
+# starts listening.  No shell migration step needed here.
+CMD ["node", "packages/api/dist/index.js"]

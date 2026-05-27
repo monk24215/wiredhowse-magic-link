@@ -12,6 +12,9 @@ const configSchema = z.object({
   EMAIL_REPLY_TO: z.string().email().default('support@wiredhowse.app'),
   SITE_URL: z.string().url().default('https://magic-link.wiredhowse.app'),
   WH_DISABLE_RATE_LIMITS: z.string().optional(),
+  // Resend webhook — signed by Resend using svix; stored as RESEND_WEBHOOK_SECRET.
+  // If absent, webhook route accepts events but skips signature verification (warns in logs).
+  RESEND_WEBHOOK_SECRET: z.string().optional(),
   // Google OAuth (optional — OAuth routes return 501 if absent)
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),

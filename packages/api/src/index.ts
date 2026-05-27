@@ -1,12 +1,14 @@
 import { randomBytes } from 'node:crypto';
 import fastifyHelmet from '@fastify/helmet';
 import Fastify from 'fastify';
+import { runMigrations } from '@wiredhowse/db';
 import { config } from './config';
 import { registerGlobalErrorHandler } from './errors';
 import { registerRequestLogging } from './middleware/logging';
 import { authRoutes } from './routes/auth/index';
 import { dashboardRoutes } from './routes/dashboard/index';
 import { healthRoutes } from './routes/health';
+import { emailWebhookRoutes } from './routes/internal/email-webhook';
 import { identityRoutes } from './routes/identity/index';
 import { meRoutes } from './routes/me/index';
 import { magicRoutes } from './routes/magic/index';
@@ -67,8 +69,18 @@ void server.register(meRoutes, { prefix: '/v1/me' });
 // SSO identity contract — called by other wiredHowse apps with a session token
 void server.register(identityRoutes, { prefix: '/v1/identity' });
 
+// Internal webhook receiver — Resend bounce/complaint/delay events
+void server.register(emailWebhookRoutes, { prefix: '/v1/internal' });
+
 const start = async (): Promise<void> => {
   try {
+    // Run Drizzle migrations before accepting traffic.
+    // runMigrations uses a dedicated single-connection pool and closes it
+    // when done — safe to run on every deploy (idempotent).
+    server.log.info('Running database migrations…');
+    await runMigrations(config.DATABASE_URL);
+    server.log.info('Database migrations complete');
+
     await server.listen({ port: config.PORT, host: '0.0.0.0' });
     server.log.info({ port: config.PORT, env: config.NODE_ENV }, 'API server started');
   } catch (err) {
