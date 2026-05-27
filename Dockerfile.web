@@ -19,10 +19,10 @@ COPY packages/web ./packages/web
 # Build shared first (web depends on it for types during next build).
 RUN pnpm --filter @wiredhowse/shared build
 
-# INTERNAL_API_URL must be set in Railway env vars for the Next.js rewrites to
-# point at the api service's private domain.  Next.js bakes rewrites into the
-# build output, so this env var is consumed at build time, not at runtime.
-# Local dev default: http://localhost:3001
+# INTERNAL_API_URL is consumed at build time by next.config.ts rewrites.
+# Declare it as an ARG so Railway's --build-arg injection is visible to Node
+# during `next build`.  Falls back to localhost for local dev (no build arg).
+ARG INTERNAL_API_URL=http://localhost:3001
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm --filter @wiredhowse/web build
 
