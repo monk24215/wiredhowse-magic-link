@@ -1,0 +1,32 @@
+# Cron service — runs alongside the API on Railway as a separate service.
+# Same base as Dockerfile but starts dist/cron.js instead of dist/index.js.
+
+FROM node:20-alpine AS base
+RUN npm install -g pnpm
+
+# ── deps ──────────────────────────────────────────────────────────────────────
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml ./
+COPY packages/api/package.json ./packages/api/
+COPY packages/db/package.json ./packages/db/
+COPY packages/shared/package.json ./packages/shared/
+RUN pnpm install --frozen-lockfile --prod=false
+
+# ── build ─────────────────────────────────────────────────────────────────────
+FROM deps AS builder
+COPY tsconfig.base.json ./
+COPY packages/shared ./packages/shared
+COPY packages/db ./packages/db
+COPY packages/api ./packages/api
+RUN pnpm --filter @wiredhowse/api build
+
+# ── runtime ───────────────────────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/packages/api/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+# Health check port (default 3002, configurable via HEALTHZ_PORT)
+EXPOSE 3002
+CMD ["node", "dist/cron.js"]

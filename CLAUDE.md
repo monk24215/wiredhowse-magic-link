@@ -153,7 +153,7 @@ Each `/clear` is cheap because this file + the brief + `spec/00_overview.md` get
 - [x] `/me` self-service pages (7c)
 - [x] Close-and-archive flow (7c)
 - [x] CSRF protection on dashboard + /me mutations (7d)
-- [ ] Cron service (cleanup + archive purge)
+- [x] Cron service (cleanup + archive purge)
 - [ ] CI: typecheck + lint + unit + integration
 - [ ] Deploy to Railway
 - [ ] DMARC ramp to `p=quarantine`
