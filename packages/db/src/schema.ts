@@ -185,6 +185,11 @@ export const handoffTokens = pgTable(
       .notNull()
       .references(() => sessions.id, { onDelete: 'cascade' }),
     tokenHash: bytea('token_hash').notNull(),
+    // raw_session_token: stores the plaintext wh_s_ token so the snippet can
+    // retrieve it via POST /v1/snippet/handoff/exchange. Lives for at most 60 s
+    // (handoff TTL) then the row becomes inert (redeemed_at IS NOT NULL).
+    // The cleanup cron purges these rows after 1 hour. NOT stored after that.
+    rawSessionToken: text('raw_session_token').notNull(),
     createdAt: tstz('created_at').notNull().default(sql`now()`),
     expiresAt: tstz('expires_at').notNull(),
     redeemedAt: tstz('redeemed_at'),

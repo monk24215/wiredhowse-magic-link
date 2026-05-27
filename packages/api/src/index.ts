@@ -6,6 +6,7 @@ import { registerGlobalErrorHandler } from './errors';
 import { registerRequestLogging } from './middleware/logging';
 import { healthRoutes } from './routes/health';
 import { magicRoutes } from './routes/magic/index';
+import { handoffExchangeRoutes } from './routes/snippet/handoff-exchange';
 import { magicLinkRequestRoutes } from './routes/snippet/magic-link-request';
 
 const server = Fastify({
@@ -40,6 +41,7 @@ void server.register(magicRoutes, { prefix: '/v1/magic' });
 
 // Snippet routes — called from customer sites (site-key + origin gated)
 void server.register(magicLinkRequestRoutes, { prefix: '/v1/snippet' });
+void server.register(handoffExchangeRoutes, { prefix: '/v1/snippet' });
 
 const start = async (): Promise<void> => {
   try {

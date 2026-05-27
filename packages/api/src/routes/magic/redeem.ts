@@ -126,12 +126,16 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
           if (!session) throw new Error('Session INSERT returned no row');
           const sessionId = session.id;
 
-          // INSERT handoff_token — 60-second bridge back to the snippet
+          // INSERT handoff_token — 60-second bridge back to the snippet.
+          // rawSessionToken stores the plaintext wh_s_ token so the exchange
+          // endpoint can return it. It is inert after redeemed_at is set and
+          // is purged by the cleanup cron after 1 hour.
           const hoTokenRaw = generateToken('wh_ho_');
           const hoTokenHash = hashToken(hoTokenRaw);
           await tx.insert(handoffTokens).values({
             sessionId,
             tokenHash: hoTokenHash,
+            rawSessionToken: sessionTokenRaw,
             expiresAt: addSeconds(now, 60),
           });
 
