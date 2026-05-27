@@ -6,6 +6,7 @@ import { registerGlobalErrorHandler } from './errors';
 import { registerRequestLogging } from './middleware/logging';
 import { healthRoutes } from './routes/health';
 import { magicRoutes } from './routes/magic/index';
+import { snippetAssetRoutes } from './routes/snippet-assets';
 import { handoffExchangeRoutes } from './routes/snippet/handoff-exchange';
 import { magicLinkRequestRoutes } from './routes/snippet/magic-link-request';
 import { sessionCheckRoutes } from './routes/snippet/session-check';
@@ -40,6 +41,9 @@ void server.register(healthRoutes);
 
 // Magic-link redemption (browser navigation — returns HTML or 302)
 void server.register(magicRoutes, { prefix: '/v1/magic' });
+
+// Static snippet assets — JS bundles, TypeScript declarations, iframe shell
+void server.register(snippetAssetRoutes, { prefix: '/v1' });
 
 // Snippet routes — called from customer sites (site-key + origin gated)
 void server.register(magicLinkRequestRoutes, { prefix: '/v1/snippet' });

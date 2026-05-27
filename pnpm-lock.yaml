@@ -57,6 +57,9 @@ importers:
       '@types/node':
         specifier: ^20.17.0
         version: 20.19.41
+      '@wiredhowse/snippet':
+        specifier: workspace:*
+        version: link:../snippet
       pino-pretty:
         specifier: ^13.0.0
         version: 13.1.3

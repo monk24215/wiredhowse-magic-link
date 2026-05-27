@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.17.0",
+    "@wiredhowse/snippet": "workspace:*",
     "pino-pretty": "^13.0.0",
     "testcontainers": "^10.0.0",
     "vitest": "^2.1.8"
