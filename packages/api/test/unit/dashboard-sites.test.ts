@@ -177,6 +177,12 @@ const SITE = {
 
 const COOKIE = 'wh_owner_session=wh_owner_session_test_value';
 
+// CSRF double-submit cookie + header for mutation requests.
+const CSRF_TOKEN = 'dashboard-unit-test-csrf';
+// Combined cookie string: session + CSRF
+const AUTHED_COOKIE = `${COOKIE}; wh_csrf=${encodeURIComponent(CSRF_TOKEN)}`;
+const CSRF_HEADER = { 'x-csrf-token': CSRF_TOKEN };
+
 // ---------------------------------------------------------------------------
 // App factory
 // ---------------------------------------------------------------------------
@@ -232,7 +238,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'POST',
         url: '/v1/dashboard/sites',
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ domain: 'newsite.example.com' }),
       });
 
@@ -250,7 +256,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'POST',
         url: '/v1/dashboard/sites',
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ domain: 'fourthsite.example.com' }),
       });
 
@@ -267,7 +273,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'POST',
         url: '/v1/dashboard/sites',
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ domain: 'taken.example.com' }),
       });
 
@@ -282,7 +288,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'POST',
         url: '/v1/dashboard/sites',
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ domain: 'not a domain' }),
       });
 
@@ -313,7 +319,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'GET',
         url: `/v1/dashboard/sites/${SITE.id}`,
-        headers: { cookie: COOKIE },
+        headers: { cookie: AUTHED_COOKIE, ...CSRF_HEADER },
       });
 
       expect(res.statusCode).toBe(200);
@@ -340,7 +346,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'GET',
         url: '/v1/dashboard/sites/st_other_owner',
-        headers: { cookie: COOKIE },
+        headers: { cookie: AUTHED_COOKIE, ...CSRF_HEADER },
       });
 
       expect(res.statusCode).toBe(404);
@@ -366,7 +372,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'PATCH',
         url: `/v1/dashboard/sites/${SITE.id}`,
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         // updateSiteSchema only allows state: 'live' | 'disabled'
         body: JSON.stringify({ state: 'pending_verification' }),
       });
@@ -383,7 +389,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'PATCH',
         url: `/v1/dashboard/sites/${SITE.id}`,
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ state: 'live' }),
       });
 
@@ -397,7 +403,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'PATCH',
         url: '/v1/dashboard/sites/st_other_owner',
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ allowed_origins: ['https://evil.example.com'] }),
       });
 
@@ -426,7 +432,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'DELETE',
         url: `/v1/dashboard/sites/${SITE.id}`,
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({}),
       });
 
@@ -440,7 +446,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'DELETE',
         url: `/v1/dashboard/sites/${SITE.id}`,
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ confirmation: 'REMOVE' }),
       });
 
@@ -455,7 +461,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'DELETE',
         url: '/v1/dashboard/sites/st_other_owner',
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ confirmation: 'DELETE' }),
       });
 
@@ -484,7 +490,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'GET',
         url: '/v1/dashboard/account',
-        headers: { cookie: COOKIE },
+        headers: { cookie: AUTHED_COOKIE, ...CSRF_HEADER },
       });
 
       expect(res.statusCode).toBe(200);
@@ -513,7 +519,7 @@ describe('dashboard-sites unit tests', () => {
       const res = await app.inject({
         method: 'PATCH',
         url: '/v1/dashboard/account',
-        headers: { cookie: COOKIE, 'content-type': 'application/json' },
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
         body: JSON.stringify({ new_password: 'newSecurePass123' }),
       });
 

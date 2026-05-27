@@ -123,6 +123,13 @@ const AUTH_ROW = { session: { id: CURRENT_SESSION_ID }, endUser: END_USER };
 // A valid-looking session token (startsWith 'Bearer wh_s_')
 const VALID_TOKEN = 'wh_s_validtoken12345678901234567890123456';
 
+// CSRF double-submit cookie + header for mutation requests.
+const CSRF_TOKEN = 'unit-test-csrf-token';
+const CSRF_HEADERS = {
+  cookie: `wh_csrf=${encodeURIComponent(CSRF_TOKEN)}`,
+  'x-csrf-token': CSRF_TOKEN,
+};
+
 const makeFakeSessionRow = (id: string, siteId = 'st_site001') => ({
   id,
   siteId,
@@ -267,7 +274,7 @@ describe('POST /v1/me/sessions/revoke-all', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/sessions/revoke-all',
-      headers: { authorization: `Bearer ${VALID_TOKEN}` },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, ...CSRF_HEADERS },
     });
 
     expect(res.statusCode).toBe(204);
@@ -294,7 +301,7 @@ describe('POST /v1/me/sessions/:id/revoke', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/sessions/sess_target/revoke',
-      headers: { authorization: `Bearer ${VALID_TOKEN}` },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, ...CSRF_HEADERS },
     });
 
     expect(res.statusCode).toBe(204);
@@ -309,7 +316,7 @@ describe('POST /v1/me/sessions/:id/revoke', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/sessions/sess_belongs_to_user_b/revoke',
-      headers: { authorization: `Bearer ${VALID_TOKEN}` },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, ...CSRF_HEADERS },
     });
 
     expect(res.statusCode).toBe(404);
@@ -324,7 +331,7 @@ describe('POST /v1/me/sessions/:id/revoke', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/sessions/sess_already_revoked/revoke',
-      headers: { authorization: `Bearer ${VALID_TOKEN}` },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, ...CSRF_HEADERS },
     });
 
     expect(res.statusCode).toBe(404);

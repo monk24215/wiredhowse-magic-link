@@ -131,6 +131,13 @@ const AUTH_ROW = { session: { id: 'sess_current' }, endUser: END_USER };
 // A valid-looking session token (startsWith 'Bearer wh_s_')
 const VALID_TOKEN = 'wh_s_validtoken12345678901234567890123456';
 
+// CSRF double-submit cookie + header for mutation requests.
+const CSRF_TOKEN = 'unit-test-csrf-token';
+const CSRF_HEADERS = {
+  cookie: `wh_csrf=${encodeURIComponent(CSRF_TOKEN)}`,
+  'x-csrf-token': CSRF_TOKEN,
+};
+
 // ---------------------------------------------------------------------------
 // Deferred imports — must come after vi.mock registrations
 // ---------------------------------------------------------------------------
@@ -181,7 +188,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json', ...CSRF_HEADERS },
       body: JSON.stringify({}),
     });
 
@@ -196,7 +203,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json', ...CSRF_HEADERS },
       body: JSON.stringify({ confirmation: 'delete my data' }), // lowercase — not exact
     });
 
@@ -211,7 +218,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json', ...CSRF_HEADERS },
       body: JSON.stringify({ confirmation: 'DELETE MY' }),
     });
 
@@ -226,7 +233,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json', ...CSRF_HEADERS },
       body: JSON.stringify({ confirmation: 'DELETE MY DATA' }),
     });
 
@@ -241,7 +248,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json' },
+      headers: { authorization: `Bearer ${VALID_TOKEN}`, 'content-type': 'application/json', ...CSRF_HEADERS },
       body: JSON.stringify({ confirmation: 'DELETE MY DATA' }),
     });
 

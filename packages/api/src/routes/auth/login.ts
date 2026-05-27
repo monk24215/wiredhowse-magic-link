@@ -3,8 +3,9 @@ import { ErrorCode, loginSchema } from '@wiredhowse/shared';
 import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { send400, sendError } from '../../errors';
+import { randomBytes } from 'node:crypto';
 import { generateToken, hashToken } from '../../lib/crypto';
-import { buildOwnerSessionCookie } from '../../lib/cookies';
+import { buildCsrfCookie, buildOwnerSessionCookie } from '../../lib/cookies';
 import { hashBytes, hashForLog } from '../../lib/hashing';
 import { dummyVerify, verifyPassword } from '../../lib/password';
 import { addDays, addHours, nowUtc } from '../../lib/time';
@@ -192,7 +193,10 @@ export async function loginRoutes(app: FastifyInstance): Promise<void> {
       return;
     }
 
+    // Set the session cookie (HttpOnly) and the CSRF double-submit cookie (not HttpOnly).
+    const rawCsrfToken = randomBytes(32).toString('base64url');
     void reply.header('Set-Cookie', buildOwnerSessionCookie(rawSessionToken));
+    void reply.header('Set-Cookie', buildCsrfCookie(rawCsrfToken));
 
     request.log.info(
       { event: 'login_success', ownerId: owner.id, sessionId: session.id },

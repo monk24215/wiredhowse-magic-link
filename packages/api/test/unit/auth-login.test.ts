@@ -131,7 +131,7 @@ describe('POST /login', () => {
     expect(String(setCookie)).toContain('wh_owner_session=');
   });
 
-  it('cookie is HttpOnly and SameSite=Lax', async () => {
+  it('session cookie is HttpOnly and SameSite=Lax; CSRF cookie is also set', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/login',
@@ -139,9 +139,17 @@ describe('POST /login', () => {
       body: JSON.stringify({ email: 'owner@example.com', password: 'correctpass' }),
     });
 
-    const setCookie = String(res.headers['set-cookie'] ?? '');
-    expect(setCookie).toContain('HttpOnly');
-    expect(setCookie).toContain('SameSite=Lax');
+    const setCookie = res.headers['set-cookie'];
+    // Fastify returns an array when multiple Set-Cookie headers are present.
+    const cookies = Array.isArray(setCookie) ? setCookie : [String(setCookie)];
+    const sessionCookie = cookies.find((c) => c.startsWith('wh_owner_session=')) ?? '';
+    const csrfCookie = cookies.find((c) => c.startsWith('wh_csrf=')) ?? '';
+
+    expect(sessionCookie).toContain('HttpOnly');
+    expect(sessionCookie).toContain('SameSite=Lax');
+    expect(csrfCookie).toBeTruthy();
+    // CSRF cookie must NOT be HttpOnly so the SPA can read it
+    expect(csrfCookie).not.toContain('HttpOnly');
   });
 
   it('cookie has Max-Age=2592000 (30 days)', async () => {

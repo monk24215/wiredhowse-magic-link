@@ -158,6 +158,19 @@ function bearerHeader(rawToken: string) {
   return { authorization: `Bearer ${rawToken}` };
 }
 
+/**
+ * Build a matching CSRF cookie + header pair for integration tests.
+ *
+ * The middleware does a constant-time comparison of cookieValue == headerValue.
+ * For testing purposes a fixed value is fine — we just need them to match.
+ */
+function csrfHeaders(token = 'test-csrf-token-value') {
+  return {
+    cookie: `wh_csrf=${encodeURIComponent(token)}`,
+    'x-csrf-token': token,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Container + app lifecycle
 // ---------------------------------------------------------------------------
@@ -306,7 +319,7 @@ describe('PATCH /v1/me', () => {
     const res = await app.inject({
       method: 'PATCH',
       url: '/v1/me',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ display_name: 'New Name' }),
     });
 
@@ -322,7 +335,7 @@ describe('PATCH /v1/me', () => {
     await app.inject({
       method: 'PATCH',
       url: '/v1/me',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ display_name: 'Has Name' }),
     });
 
@@ -330,7 +343,7 @@ describe('PATCH /v1/me', () => {
     const res = await app.inject({
       method: 'PATCH',
       url: '/v1/me',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ display_name: null }),
     });
 
@@ -420,7 +433,7 @@ describe('POST /v1/me/sessions/:id/revoke', () => {
     const res = await app.inject({
       method: 'POST',
       url: `/v1/me/sessions/${sessionId}/revoke`,
-      headers: bearerHeader(rawToken),
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders() },
     });
 
     expect(res.statusCode).toBe(204);
@@ -440,7 +453,7 @@ describe('POST /v1/me/sessions/:id/revoke', () => {
     const res = await app.inject({
       method: 'POST',
       url: `/v1/me/sessions/${userB.sessionId}/revoke`,
-      headers: bearerHeader(userA.rawToken),
+      headers: { ...bearerHeader(userA.rawToken), ...csrfHeaders() },
     });
 
     expect(res.statusCode).toBe(404);
@@ -462,7 +475,7 @@ describe('POST /v1/me/sessions/:id/revoke', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/sessions/sess_doesnotexist/revoke',
-      headers: bearerHeader(rawToken),
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders() },
     });
 
     expect(res.statusCode).toBe(404);
@@ -493,7 +506,7 @@ describe('POST /v1/me/sessions/revoke-all', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/sessions/revoke-all',
-      headers: bearerHeader(rawToken),
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders() },
     });
 
     expect(res.statusCode).toBe(204);
@@ -513,7 +526,7 @@ describe('POST /v1/me/sessions/revoke-all', () => {
     await app.inject({
       method: 'POST',
       url: '/v1/me/sessions/revoke-all',
-      headers: bearerHeader(userA.rawToken),
+      headers: { ...bearerHeader(userA.rawToken), ...csrfHeaders() },
     });
 
     // User B's session must still be active
@@ -546,7 +559,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ confirmation: 'DELETE MY DATA' }),
     });
 
@@ -573,7 +586,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ confirmation: 'DELETE MY DATA' }),
     });
 
@@ -612,7 +625,7 @@ describe('POST /v1/me/close-and-archive', () => {
     await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ confirmation: 'DELETE MY DATA' }),
     });
 
@@ -636,7 +649,7 @@ describe('POST /v1/me/close-and-archive', () => {
     await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ confirmation: 'DELETE MY DATA' }),
     });
 
@@ -667,7 +680,7 @@ describe('POST /v1/me/close-and-archive', () => {
     const res = await app.inject({
       method: 'POST',
       url: '/v1/me/close-and-archive',
-      headers: { ...bearerHeader(rawToken), 'content-type': 'application/json' },
+      headers: { ...bearerHeader(rawToken), ...csrfHeaders(), 'content-type': 'application/json' },
       body: JSON.stringify({ confirmation: 'please delete my data' }),
     });
 

@@ -4,11 +4,7 @@ import { and, count, eq, gt, isNull, max } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { send404, sendError } from '../../errors';
 import { addHours, nowUtc } from '../../lib/time';
-import { requireSiteOwnerSession } from '../../middleware/auth-owner';
-
 export async function siteMetricsRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireSiteOwnerSession);
-
   /**
    * POST /v1/dashboard/sites/:id/clear-sessions
    *

@@ -5,7 +5,8 @@ import type { FastifyInstance } from 'fastify';
 import { config } from '../../config';
 import { sendError } from '../../errors';
 import { generateToken, hashToken } from '../../lib/crypto';
-import { buildOwnerSessionCookie } from '../../lib/cookies';
+import { buildCsrfCookie, buildOwnerSessionCookie } from '../../lib/cookies';
+import { randomBytes } from 'node:crypto';
 import { hashBytes } from '../../lib/hashing';
 import { addDays, addMinutes, nowUtc } from '../../lib/time';
 
@@ -254,7 +255,9 @@ export async function googleAuthRoutes(app: FastifyInstance): Promise<void> {
       return reply.code(302).redirect(`${config.SITE_URL}/login?error=oauth_failed`);
     }
 
+    const rawCsrfToken = randomBytes(32).toString('base64url');
     void reply.header('Set-Cookie', buildOwnerSessionCookie(rawSessionToken));
+    void reply.header('Set-Cookie', buildCsrfCookie(rawCsrfToken));
 
     request.log.info(
       { event: 'oauth_login_success', ownerId, sessionId: session.id },

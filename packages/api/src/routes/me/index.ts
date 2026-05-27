@@ -1,5 +1,9 @@
+import { randomBytes } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
+import { CSRF_COOKIE, buildCsrfCookie } from '../../lib/cookies';
 import { requireEndUserSession } from '../../middleware/auth-session';
+import { requireCsrfToken } from '../../middleware/csrf';
+import { readCookieValue } from '../../middleware/csrf';
 import { closeArchiveRoutes } from './close-archive';
 import { exportRoutes } from './export';
 import { profileRoutes } from './profile';
@@ -8,17 +12,40 @@ import { sessionsRoutes } from './sessions';
 /**
  * End User self-service routes — /v1/me/*
  *
- * All routes require a valid End User session token:
- *   Authorization: Bearer wh_s_<token>
+ * Authentication: Bearer wh_s_<token> (from localStorage on the customer site,
+ * or from the URL hash when the End User navigates to magic-link.wiredhowse.app/me).
  *
- * These are NOT cookie-gated. The token comes from localStorage/sessionStorage
- * set by the snippet on the customer site, or passed via URL hash to the /me
- * page. Keep this auth scheme isolated from the Site Owner dashboard which uses
- * `wh_owner_session` cookies.
+ * CSRF protection: on state-changing requests (POST/PATCH/DELETE), the client
+ * must include an X-CSRF-Token header matching the wh_csrf cookie.
+ * The cookie is issued on the first successful GET request to this namespace
+ * so the /me page can read it and attach it to subsequent mutations.
+ *
+ * These routes are NOT cookie-gated for authentication. The bearer token comes
+ * from the snippet/localStorage context. Keep this scheme isolated from the
+ * Site Owner dashboard which uses `wh_owner_session` cookies.
  */
 export async function meRoutes(app: FastifyInstance): Promise<void> {
-  // Auth guard applied to the whole /v1/me namespace
+  // 1. Auth guard: all routes require a valid End User session.
   app.addHook('preHandler', requireEndUserSession);
+
+  // 2. CSRF: validate X-CSRF-Token == wh_csrf cookie on mutations.
+  //    Safe methods (GET, HEAD, OPTIONS) are skipped inside the middleware.
+  app.addHook('preHandler', requireCsrfToken);
+
+  // 3. Issue a wh_csrf cookie on successful GET responses so the /me page
+  //    can read it and attach it to subsequent PATCH/POST requests.
+  //    Only issued when the session is valid (endUser is set) and the
+  //    cookie is not already present (avoids invalidating in-flight requests).
+  app.addHook('onSend', async (request, reply, payload) => {
+    if (request.method === 'GET' && request.endUser) {
+      const existing = readCookieValue(request.headers.cookie, CSRF_COOKIE);
+      if (!existing) {
+        const rawCsrfToken = randomBytes(32).toString('base64url');
+        void reply.header('Set-Cookie', buildCsrfCookie(rawCsrfToken));
+      }
+    }
+    return payload;
+  });
 
   // GET / → GET /v1/me (profile)
   // PATCH / → PATCH /v1/me

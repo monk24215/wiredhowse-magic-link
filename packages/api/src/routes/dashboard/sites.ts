@@ -6,7 +6,6 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { send400, send404, sendError } from '../../errors';
 import { nowUtc } from '../../lib/time';
-import { requireSiteOwnerSession } from '../../middleware/auth-owner';
 
 const SNIPPET_BASE_URL = 'https://magic-link.wiredhowse.app';
 const SITE_LIMIT = 3;
@@ -65,8 +64,6 @@ function formatSiteDetail(site: typeof sites.$inferSelect) {
 const deleteBodySchema = z.object({ confirmation: z.literal('DELETE') });
 
 export async function siteRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireSiteOwnerSession);
-
   /**
    * GET /v1/dashboard/sites
    *

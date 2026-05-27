@@ -4,11 +4,7 @@ import { eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { send400, sendError } from '../../errors';
 import { hashPassword, verifyPassword } from '../../lib/password';
-import { requireSiteOwnerSession } from '../../middleware/auth-owner';
-
 export async function accountRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireSiteOwnerSession);
-
   /**
    * GET /v1/dashboard/account
    *

@@ -5,7 +5,6 @@ import { and, eq } from 'drizzle-orm';
 import type { FastifyInstance } from 'fastify';
 import { send404, sendError } from '../../errors';
 import { addSeconds, nowUtc } from '../../lib/time';
-import { requireSiteOwnerSession } from '../../middleware/auth-owner';
 import { checkDomainVerifyPerSite, setRateLimitHeaders } from '../../services/rate-limit';
 
 const DNS_TIMEOUT_MS = 5000;
@@ -87,8 +86,6 @@ async function checkMeta(domain: string, verificationToken: string): Promise<boo
 }
 
 export async function siteVerifyRoutes(app: FastifyInstance): Promise<void> {
-  app.addHook('preHandler', requireSiteOwnerSession);
-
   /**
    * POST /v1/dashboard/sites/:id/verify
    *

@@ -152,7 +152,7 @@ Each `/clear` is cheap because this file + the brief + `spec/00_overview.md` get
 - [x] Google OAuth (Site Owners only) (7a)
 - [x] `/me` self-service pages (7c)
 - [x] Close-and-archive flow (7c)
-- [ ] CSRF protection on dashboard mutations
+- [x] CSRF protection on dashboard + /me mutations (7d)
 - [ ] Cron service (cleanup + archive purge)
 - [ ] CI: typecheck + lint + unit + integration
 - [ ] Deploy to Railway
