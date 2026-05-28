@@ -143,9 +143,17 @@ export async function siteVerifyRoutes(app: FastifyInstance): Promise<void> {
       const method = dnsOk ? 'dns' : 'meta';
       const now = nowUtc();
 
+      // Auto-seed allowedOrigins with the verified domain on first verification.
+      // Sites start with an empty list; without this the snippet is immediately
+      // blocked by the origin check on every request.
+      const verifiedOrigin = `https://${site.domain}`;
+      const seededOrigins = site.allowedOrigins.includes(verifiedOrigin)
+        ? site.allowedOrigins
+        : [...site.allowedOrigins, verifiedOrigin];
+
       await db
         .update(sites)
-        .set({ state: 'live', verificationMethod: method, verifiedAt: now })
+        .set({ state: 'live', verificationMethod: method, verifiedAt: now, allowedOrigins: seededOrigins })
         .where(eq(sites.id, site.id));
 
       return reply.code(200).send({ data: { verified: true, method } });
