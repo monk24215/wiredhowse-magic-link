@@ -149,16 +149,21 @@ export {};
 
 export async function snippetAssetRoutes(app: FastifyInstance): Promise<void> {
   // ── GET /snippet.js ──────────────────────────────────────────────────────────
+  // CORP must be cross-origin: snippet.js is loaded via <script src> on customer
+  // sites. Without this, customer sites that enable COEP (Cross-Origin-Embedder-
+  // Policy) would be blocked from loading the script.
   app.get('/snippet.js', async (_req, reply) => {
     const src = await readFile(join(SNIPPET_DIST, 'snippet.js'));
     return reply
       .code(200)
       .header('Content-Type', 'application/javascript; charset=utf-8')
       .header('Cache-Control', JS_CACHE)
+      .header('Cross-Origin-Resource-Policy', 'cross-origin')
       .send(src);
   });
 
   // ── GET /snippet-ui.js ───────────────────────────────────────────────────────
+  // Loaded only from within the iframe (same-origin context) — no CORP override needed.
   app.get('/snippet-ui.js', async (_req, reply) => {
     const src = await readFile(join(SNIPPET_DIST, 'snippet-ui.js'));
     return reply
@@ -188,6 +193,7 @@ export async function snippetAssetRoutes(app: FastifyInstance): Promise<void> {
       .header('Content-Type', 'text/html; charset=utf-8')
       .header('Content-Security-Policy', IFRAME_CSP)
       .header('Cache-Control', JS_CACHE)
+      .header('Cross-Origin-Resource-Policy', 'cross-origin')
       .send(IFRAME_HTML);
   });
 }

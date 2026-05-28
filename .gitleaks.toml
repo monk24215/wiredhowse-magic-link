@@ -1,0 +1,59 @@
+# gitleaks configuration for wiredhowse-magic-link.
+# Run: gitleaks detect --config=.gitleaks.toml
+# CI integration: add gitleaks/gitleaks-action to the CI workflow if desired.
+#
+# All wh_* tokens are opaque 32-byte crypto.randomBytes values encoded as
+# base64url (43 chars). They must never appear in committed code or logs.
+
+title = "wiredhowse-magic-link"
+
+[extend]
+# Extend the default gitleaks ruleset.
+useDefault = true
+
+[[rules]]
+id = "wiredhowse-session-token"
+description = "wiredHowse End User session token (wh_s_)"
+regex = '''wh_s_[A-Za-z0-9\-_]{40,}'''
+tags = ["wiredhowse", "session", "secret"]
+
+[[rules]]
+id = "wiredhowse-magic-link-token"
+description = "wiredHowse magic-link token (wh_ml_)"
+regex = '''wh_ml_[A-Za-z0-9\-_]{40,}'''
+tags = ["wiredhowse", "magic-link", "secret"]
+
+[[rules]]
+id = "wiredhowse-handoff-token"
+description = "wiredHowse handoff token (wh_ho_)"
+regex = '''wh_ho_[A-Za-z0-9\-_]{40,}'''
+tags = ["wiredhowse", "handoff", "secret"]
+
+[[rules]]
+id = "wiredhowse-email-verification-token"
+description = "wiredHowse email verification token (wh_ev_)"
+regex = '''wh_ev_[A-Za-z0-9\-_]{40,}'''
+tags = ["wiredhowse", "email-verify", "secret"]
+
+[[rules]]
+id = "wiredhowse-password-reset-token"
+description = "wiredHowse password reset token (wh_pr_)"
+regex = '''wh_pr_[A-Za-z0-9\-_]{40,}'''
+tags = ["wiredhowse", "password-reset", "secret"]
+
+[[rules]]
+id = "wiredhowse-oauth-state-token"
+description = "wiredHowse OAuth state token (wh_os_)"
+regex = '''wh_os_[A-Za-z0-9\-_]{40,}'''
+tags = ["wiredhowse", "oauth", "secret"]
+
+[allowlist]
+# Test fixtures may contain placeholder tokens — allow predictable test values.
+regexes = [
+  # Allow tokens that are obviously placeholder values (all-zero or test- prefixed).
+  '''wh_[a-z]+_AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA''',
+]
+paths = [
+  # Spec files may document token formats without real values.
+  '''spec/''',
+]

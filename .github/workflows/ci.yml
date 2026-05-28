@@ -36,6 +36,13 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Check no console.log in production API code
+        run: |
+          if grep -rn 'console\.log' packages/api/src/ --include='*.ts'; then
+            echo "ERROR: console.log found in packages/api/src — use the pino logger (request.log / server.log) instead."
+            exit 1
+          fi
+
       - name: Unit tests
         run: pnpm test
 
