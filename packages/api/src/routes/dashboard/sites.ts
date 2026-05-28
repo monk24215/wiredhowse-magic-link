@@ -159,14 +159,15 @@ export async function siteRoutes(app: FastifyInstance): Promise<void> {
           domain: site.domain,
           state: site.state,
           site_key: site.siteKey,
+          snippet_tag: buildSnippetTag(site.siteKey),
           verification_token: site.verificationToken,
           allowed_origins: site.allowedOrigins,
           created_at: site.createdAt,
+          verification_instructions: buildVerificationInstructions(
+            site.domain,
+            site.verificationToken,
+          ),
         },
-        verification_instructions: buildVerificationInstructions(
-          site.domain,
-          site.verificationToken,
-        ),
       },
     });
   });
@@ -195,10 +196,8 @@ export async function siteRoutes(app: FastifyInstance): Promise<void> {
 
     return reply.code(200).send({
       data: {
-        site: {
-          ...formatSiteDetail(site),
-          snippet_tag: buildSnippetTag(site.siteKey),
-        },
+        ...formatSiteDetail(site),
+        snippet_tag: buildSnippetTag(site.siteKey),
         verification_instructions: buildVerificationInstructions(
           site.domain,
           site.verificationToken,
