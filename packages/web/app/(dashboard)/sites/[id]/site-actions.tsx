@@ -77,18 +77,18 @@ function VerifyButton({ siteId, onVerified }: { siteId: string; onVerified: () =
     setError(null);
     setLoading(true);
     try {
-      await api.post(`/dashboard/sites/${siteId}/verify`, {});
-      setSuccess(true);
-      onVerified();
+      const result = await api.post<{ verified: boolean }>(`/dashboard/sites/${siteId}/verify`, {});
+      if (result.verified) {
+        setSuccess(true);
+        onVerified();
+      } else {
+        setError(
+          'Verification failed. Make sure the DNS record or meta tag is in place and try again.',
+        );
+      }
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.code === 'VERIFICATION_FAILED') {
-          setError(
-            'Verification failed. Make sure the DNS record or meta tag is in place and try again.',
-          );
-        } else {
-          setError(err.message);
-        }
+        setError(err.message);
       } else {
         setError('Something went wrong. Please try again.');
       }
