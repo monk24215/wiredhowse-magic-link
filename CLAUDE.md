@@ -144,7 +144,7 @@ Each `/clear` is cheap because this file + the brief + `spec/00_overview.md` get
 - [x] Sign-out endpoint
 - [x] Rate limiter
 - [x] Resend integration + email templates
-- [ ] DNS records configured + Resend domain verified
+- [x] DNS records configured + Resend domain verified
 - [x] `packages/snippet` core structure (6a) + iframe UI bundle (6b) + static asset routes (6c)
 - [x] `packages/web` dashboard pages
 - [x] Site Owner signup + email verification (7a)
