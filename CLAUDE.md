@@ -132,7 +132,7 @@ Each `/clear` is cheap because this file + the brief + `spec/00_overview.md` get
 - [x] Project brief approved
 - [x] Technical spec written and approved
 - [ ] FAQ PDFs generated
-- [ ] Railway project skeleton
+- [x] Railway project skeleton
 - [x] GitHub repo initialized with README + LICENSE + CI
 - [x] `packages/db` schema implemented + migrations (0000 initial, 0001 handoff raw_session_token)
 - [x] `packages/api` skeleton with health + readiness
@@ -146,15 +146,15 @@ Each `/clear` is cheap because this file + the brief + `spec/00_overview.md` get
 - [x] Resend integration + email templates
 - [ ] DNS records configured + Resend domain verified
 - [x] `packages/snippet` core structure (6a) + iframe UI bundle (6b) + static asset routes (6c)
-- [ ] `packages/web` dashboard pages
+- [x] `packages/web` dashboard pages
 - [x] Site Owner signup + email verification (7a)
-- [ ] Domain ownership verification (DNS + meta)
+- [x] Domain ownership verification (DNS + meta)
 - [x] Google OAuth (Site Owners only) (7a)
 - [x] `/me` self-service pages (7c)
 - [x] Close-and-archive flow (7c)
 - [x] CSRF protection on dashboard + /me mutations (7d)
 - [x] Cron service (cleanup + archive purge)
-- [ ] CI: typecheck + lint + unit + integration
-- [ ] Deploy to Railway
+- [x] CI: typecheck + lint + unit + integration
+- [x] Deploy to Railway
 - [ ] DMARC ramp to `p=quarantine`
 - [ ] Pre-launch checklist from `spec/05_threat_model.md`
