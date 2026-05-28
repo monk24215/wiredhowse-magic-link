@@ -156,8 +156,20 @@ function AllowedOriginsEditor({
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     const trimmed = newOrigin.trim();
-    if (!trimmed || origins.includes(trimmed)) return;
-    const updated = [...origins, trimmed];
+    if (!trimmed) return;
+
+    // An Origin is scheme + host only — no path, query string, or trailing slash.
+    let normalized = trimmed;
+    try {
+      const u = new URL(trimmed);
+      normalized = u.origin; // strips path, query, hash, trailing slash
+    } catch {
+      setError('Enter a valid URL, e.g. https://example.com');
+      return;
+    }
+
+    if (origins.includes(normalized)) return;
+    const updated = [...origins, normalized];
     await saveOrigins(updated);
     if (!error) setNewOrigin('');
   }
