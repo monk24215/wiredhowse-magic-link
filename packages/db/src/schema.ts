@@ -17,8 +17,14 @@ import { makeId } from './ids';
 // Custom column types
 // ---------------------------------------------------------------------------
 
-const bytea = customType<{ data: Buffer }>({
+// postgres.js (the underlying driver) returns bytea columns as Uint8Array.
+// fromDriver ensures callers always receive a proper Buffer so that Buffer
+// methods like .equals() and crypto.timingSafeEqual() work without wrapping.
+const bytea = customType<{ data: Buffer; driverData: Buffer | Uint8Array }>({
   dataType: () => 'bytea',
+  fromDriver(value) {
+    return Buffer.isBuffer(value) ? value : Buffer.from(value as Uint8Array);
+  },
 });
 
 const citext = customType<{ data: string }>({

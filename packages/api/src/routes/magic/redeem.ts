@@ -166,7 +166,7 @@ export async function magicRedeemRoutes(app: FastifyInstance): Promise<void> {
       );
 
       // Informational only — flag cross-IP redemptions for abuse review
-      if (!requestedIpHash.equals(redeemedIpHash)) {
+      if (!Buffer.from(requestedIpHash).equals(redeemedIpHash)) {
         request.log.warn(
           { event: 'ip_mismatch_on_redeem', requestIpHash: hashForLog(request.ip) },
           'Magic-link redemption IP differs from request IP',
