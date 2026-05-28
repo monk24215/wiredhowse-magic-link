@@ -8,6 +8,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY packages/api/package.json ./packages/api/
 COPY packages/db/package.json ./packages/db/
 COPY packages/shared/package.json ./packages/shared/
+COPY packages/snippet/package.json ./packages/snippet/
 RUN pnpm install --frozen-lockfile
 
 # ── Build workspace packages ──────────────────────────────────────────────────
@@ -17,11 +18,13 @@ COPY tsconfig.base.json ./
 COPY packages/shared ./packages/shared
 COPY packages/db ./packages/db
 COPY packages/api ./packages/api
+COPY packages/snippet ./packages/snippet
 
 # Build in dependency order.
 RUN pnpm --filter @wiredhowse/shared build
 RUN pnpm --filter @wiredhowse/db build
 RUN pnpm --filter @wiredhowse/api build
+RUN pnpm --filter @wiredhowse/snippet build
 
 # Patch workspace package.json main fields so Node can resolve compiled JS at
 # runtime.  During build, tsc resolves ./src/index.ts directly (TypeScript
@@ -57,6 +60,9 @@ COPY --from=builder /app/packages/db/package.json ./packages/db/
 # API compiled output.
 COPY --from=builder /app/packages/api/dist ./packages/api/dist
 COPY --from=builder /app/packages/api/package.json ./packages/api/
+
+# Snippet bundle — served as a static asset by the API.
+COPY --from=builder /app/packages/snippet/dist ./packages/snippet/dist
 
 # Full node_modules — contains pnpm virtual store and workspace symlinks.
 # Symlinks for @wiredhowse/* resolve to /app/packages/{db,shared} above.
