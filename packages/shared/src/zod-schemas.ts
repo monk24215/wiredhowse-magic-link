@@ -95,9 +95,31 @@ export const createSiteSchema = z.object({
   domain: domainSchema,
 });
 
+// Normalizes any URL to just its origin (scheme + host + port).
+// Rejects non-http/https schemes and unparseable strings.
+const originSchema = z.string().transform((val, ctx) => {
+  let parsed: URL;
+  try {
+    parsed = new URL(val);
+  } catch {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid origin URL' });
+    return z.NEVER;
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Origin must use http or https' });
+    return z.NEVER;
+  }
+  const normalized = parsed.origin;
+  if (normalized === 'null') {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Invalid origin' });
+    return z.NEVER;
+  }
+  return normalized;
+});
+
 export const updateSiteSchema = z
   .object({
-    allowed_origins: z.array(z.string().url()).max(20).optional(),
+    allowed_origins: z.array(originSchema).max(20).optional(),
     state: z.enum(['live', 'disabled']).optional(),
   })
   .refine((v) => v.allowed_origins !== undefined || v.state !== undefined, {

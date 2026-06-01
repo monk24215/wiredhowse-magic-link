@@ -196,8 +196,10 @@ export async function siteRoutes(app: FastifyInstance): Promise<void> {
 
     return reply.code(200).send({
       data: {
-        ...formatSiteDetail(site),
-        snippet_tag: buildSnippetTag(site.siteKey),
+        site: {
+          ...formatSiteDetail(site),
+          snippet_tag: buildSnippetTag(site.siteKey),
+        },
         verification_instructions: buildVerificationInstructions(
           site.domain,
           site.verificationToken,

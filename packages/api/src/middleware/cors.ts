@@ -10,6 +10,18 @@ const SNIPPET_ALLOWED_HEADERS = 'Content-Type, Authorization, X-Site-Key';
 // authenticator for per-site scoping.
 const OWN_ORIGIN = new URL(process.env['SITE_URL'] ?? 'https://magic-link.wiredhowse.app').origin;
 
+// Extracts just the origin (scheme + host + port) from a stored URL string.
+// Stored entries may have been saved with paths before normalization was enforced.
+// Returns null for opaque or unparseable values so they never match.
+function extractOrigin(url: string): string | null {
+  try {
+    const o = new URL(url).origin;
+    return o === 'null' ? null : o;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Called by snippet route preHandlers after they have resolved the site's
  * allowed_origins list. Sets CORS response headers and terminates OPTIONS
@@ -29,7 +41,11 @@ export function applySnippetCors(
     return true;
   }
 
-  if (!allowedOrigins.includes(origin)) {
+  // Normalize stored entries to bare origins before comparing. This handles
+  // entries saved before write-time normalization was enforced (e.g., URLs
+  // with paths like https://example.com/page that should match the browser's
+  // Origin: https://example.com).
+  if (!allowedOrigins.some(stored => extractOrigin(stored) === origin)) {
     void reply.code(403).send({
       error: { code: ErrorCode.ORIGIN_NOT_ALLOWED, message: 'Origin not in allowed list' },
     });

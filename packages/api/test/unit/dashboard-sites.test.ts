@@ -366,6 +366,34 @@ describe('dashboard-sites unit tests', () => {
   // ── PATCH /v1/dashboard/sites/:id ────────────────────────────────────────
 
   describe('PATCH /v1/dashboard/sites/:id', () => {
+    it('returns 400 VALIDATION_ERROR when allowed_origins contains a non-URL string', async () => {
+      queueDbResponse(OWNER_SESSION_ROW); // 1. auth
+
+      const res = await app.inject({
+        method: 'PATCH',
+        url: `/v1/dashboard/sites/${SITE.id}`,
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
+        body: JSON.stringify({ allowed_origins: ['not-a-url'] }),
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(res.json<{ error: { code: string } }>().error.code).toBe('VALIDATION_ERROR');
+    });
+
+    it('returns 400 VALIDATION_ERROR when allowed_origins contains a non-http/https scheme', async () => {
+      queueDbResponse(OWNER_SESSION_ROW); // 1. auth
+
+      const res = await app.inject({
+        method: 'PATCH',
+        url: `/v1/dashboard/sites/${SITE.id}`,
+        headers: { cookie: AUTHED_COOKIE, 'content-type': 'application/json', ...CSRF_HEADER },
+        body: JSON.stringify({ allowed_origins: ['ftp://example.com'] }),
+      });
+
+      expect(res.statusCode).toBe(400);
+      expect(res.json<{ error: { code: string } }>().error.code).toBe('VALIDATION_ERROR');
+    });
+
     it('returns 400 VALIDATION_ERROR when state=pending_verification is sent (schema rejects it)', async () => {
       queueDbResponse(OWNER_SESSION_ROW); // 1. auth
 

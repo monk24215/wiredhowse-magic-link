@@ -607,6 +607,40 @@ describe('PATCH /v1/dashboard/sites/:id', () => {
     expect(res.json<{ error: { code: string } }>().error.code).toBe('NOT_FOUND');
   });
 
+  it('normalizes path-bearing allowed_origin to clean origin and stores it', async () => {
+    const { ownerId, cookieValue } = await seedSiteOwner();
+    const site = await seedSite(ownerId);
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/v1/dashboard/sites/${site.id}`,
+      headers: { ...authHeaders(cookieValue), 'content-type': 'application/json' },
+      body: JSON.stringify({
+        allowed_origins: ['https://mysite.example.com/admin.php?foo=bar#hash'],
+      }),
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json<{ data: { site: { allowed_origins: string[] } } }>();
+    // Path, query and fragment must be stripped — only scheme+host survives.
+    expect(body.data.site.allowed_origins).toEqual(['https://mysite.example.com']);
+  });
+
+  it('returns 400 VALIDATION_ERROR for non-URL in allowed_origins', async () => {
+    const { ownerId, cookieValue } = await seedSiteOwner();
+    const site = await seedSite(ownerId);
+
+    const res = await app.inject({
+      method: 'PATCH',
+      url: `/v1/dashboard/sites/${site.id}`,
+      headers: { ...authHeaders(cookieValue), 'content-type': 'application/json' },
+      body: JSON.stringify({ allowed_origins: ['not-a-url'] }),
+    });
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json<{ error: { code: string } }>().error.code).toBe('VALIDATION_ERROR');
+  });
+
   it('returns 401 UNAUTHENTICATED with no cookie', async () => {
     const { ownerId } = await seedSiteOwner();
     const site = await seedSite(ownerId);

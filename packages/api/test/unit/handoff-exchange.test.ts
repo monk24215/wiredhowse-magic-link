@@ -365,6 +365,92 @@ describe('POST /v1/snippet/handoff/exchange', () => {
     expect(res.headers['access-control-allow-origin']).toBe('https://site-a.example.com');
   });
 
+  it('OPTIONS: 204 when clean origin matches despite other noise entries in allowedOrigins', async () => {
+    mockSiteSelect.mockResolvedValue([{
+      ...SITE_A,
+      allowedOrigins: ['https://other.com', 'https://site-a.example.com', 'https://another.com'],
+    }]);
+
+    const res = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/snippet/handoff/exchange',
+      headers: {
+        'x-site-key': SITE_A.siteKey,
+        origin: 'https://site-a.example.com',
+        'access-control-request-method': 'POST',
+      },
+    });
+
+    expect(res.statusCode).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe('https://site-a.example.com');
+  });
+
+  it('OPTIONS: 204 when stored origin has a path — normalized to match clean browser origin', async () => {
+    // Regression: URLs stored with paths before write-time normalization was
+    // enforced would cause CORS to reject a valid origin. The middleware now
+    // extracts only the origin portion from stored entries before comparing.
+    mockSiteSelect.mockResolvedValue([{
+      ...SITE_A,
+      allowedOrigins: ['https://other.com', 'https://site-a.example.com/admin.php'],
+    }]);
+
+    const res = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/snippet/handoff/exchange',
+      headers: {
+        'x-site-key': SITE_A.siteKey,
+        origin: 'https://site-a.example.com',
+        'access-control-request-method': 'POST',
+      },
+    });
+
+    expect(res.statusCode).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe('https://site-a.example.com');
+  });
+
+  it('OPTIONS: 403 when path-bearing stored entry belongs to a different domain (no accidental match)', async () => {
+    // Security check: a stored entry like https://evil.com/https://victim.com
+    // must NOT match an Origin of https://victim.com. The URL parser correctly
+    // extracts https://evil.com as the origin, so the comparison fails.
+    mockSiteSelect.mockResolvedValue([{
+      ...SITE_A,
+      allowedOrigins: ['https://evil.com/https://site-a.example.com'],
+    }]);
+
+    const res = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/snippet/handoff/exchange',
+      headers: {
+        'x-site-key': SITE_A.siteKey,
+        origin: 'https://site-a.example.com',
+        'access-control-request-method': 'POST',
+      },
+    });
+
+    expect(res.statusCode).toBe(403);
+    expect(res.json<{ error: { code: string } }>().error.code).toBe('ORIGIN_NOT_ALLOWED');
+  });
+
+  it('OPTIONS: 204 when stored origin has trailing slash — normalizes and matches', async () => {
+    mockSiteSelect.mockResolvedValue([{
+      ...SITE_A,
+      allowedOrigins: ['https://site-a.example.com/'],
+    }]);
+
+    const res = await app.inject({
+      method: 'OPTIONS',
+      url: '/v1/snippet/handoff/exchange',
+      headers: {
+        'x-site-key': SITE_A.siteKey,
+        origin: 'https://site-a.example.com',
+        'access-control-request-method': 'POST',
+      },
+    });
+
+    expect(res.statusCode).toBe(204);
+    expect(res.headers['access-control-allow-origin']).toBe('https://site-a.example.com');
+  });
+
   it('sets X-Request-Id on all responses', async () => {
     const res = await app.inject({
       method: 'POST',
