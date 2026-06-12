@@ -199,11 +199,11 @@ export async function siteRoutes(app: FastifyInstance): Promise<void> {
         site: {
           ...formatSiteDetail(site),
           snippet_tag: buildSnippetTag(site.siteKey),
+          verification_instructions: buildVerificationInstructions(
+            site.domain,
+            site.verificationToken,
+          ),
         },
-        verification_instructions: buildVerificationInstructions(
-          site.domain,
-          site.verificationToken,
-        ),
       },
     });
   });

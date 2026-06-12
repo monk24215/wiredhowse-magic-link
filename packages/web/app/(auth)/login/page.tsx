@@ -7,15 +7,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ApiError, api } from '@/lib/api';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+
+const OAUTH_ERRORS: Record<string, string> = {
+  google_denied: 'Google sign-in was cancelled. You can try again or use email and password.',
+  google_unverified_email: 'Your Google account email is not verified. Please verify it with Google first.',
+  oauth_invalid: 'The sign-in link expired or was already used. Please try again.',
+  oauth_failed: 'Google sign-in failed. Please try again or use email and password.',
+};
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const oauthError = searchParams.get('error');
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(
+    oauthError ? (OAUTH_ERRORS[oauthError] ?? 'Sign-in failed. Please try again.') : null,
+  );
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,7 +36,7 @@ export default function LoginPage() {
 
     try {
       await api.post('/auth/login', { email, password });
-      router.push('/dashboard');
+      router.push('/sites');
     } catch (err) {
       if (err instanceof ApiError) {
         switch (err.code) {

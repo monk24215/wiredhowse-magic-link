@@ -52,10 +52,12 @@ export default async function SiteDetailPage({ params }: PageProps) {
   let metrics: SiteMetrics;
 
   try {
-    [site, metrics] = await Promise.all([
-      serverApi.get<SiteDetail>(`/dashboard/sites/${id}`),
+    const [siteRes, metricsRes] = await Promise.all([
+      serverApi.get<{ site: SiteDetail }>(`/dashboard/sites/${id}`),
       serverApi.get<SiteMetrics>(`/dashboard/sites/${id}/metrics`),
     ]);
+    site = siteRes.site;
+    metrics = metricsRes;
   } catch (err) {
     if (err instanceof ServerApiError && err.status === 404) {
       notFound();
