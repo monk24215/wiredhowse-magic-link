@@ -49,7 +49,7 @@ export async function googleAuthRoutes(app: FastifyInstance): Promise<void> {
 
     // returnTo can be passed as a query param for post-auth redirect.
     const query = request.query as Record<string, string>;
-    const returnTo = typeof query.return_to === 'string' ? query.return_to : '/dashboard';
+    const returnTo = typeof query.return_to === 'string' ? query.return_to : '/sites';
 
     await db.insert(oauthState).values({
       state: stateToken,
