@@ -43,11 +43,11 @@ function positionStyles(pos: 'center' | 'top' | 'bottom'): string {
     'border:none',
     'display:block',
     'border-radius:12px',
-    'box-shadow:0 8px 32px rgba(0,0,0,0.24)',
+    'box-shadow:0 8px 32px rgba(0,0,0,0.32)',
     'overflow:hidden',
     // Initial height before the iframe sends wh:size; overridden by wh:size.
     'height:400px',
-    'background:#fff',
+    'background:transparent',
   ].join(';');
 
   switch (pos) {
@@ -136,6 +136,7 @@ export function showAuthIframe(options: IframeOptions): Promise<void> {
     // calls from within the iframe work without CORS quirks (the iframe and
     // parent are cross-origin to each other regardless of this flag).
     iframe.setAttribute('sandbox', 'allow-forms allow-scripts allow-same-origin');
+    iframe.setAttribute('allowtransparency', 'true');
     iframe.setAttribute('title', 'Sign in');
     iframe.style.cssText = positionStyles(options.position);
 
