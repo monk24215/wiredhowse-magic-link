@@ -223,7 +223,7 @@ function AllowedOriginsEditor({
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      {success && <p className="text-xs text-green-700">Origins updated.</p>}
+      {success && <p className="text-xs text-emerald-400">Origins updated.</p>}
     </div>
   );
 }
@@ -340,7 +340,7 @@ function ClearSessionsButton({ siteId }: { siteId: string }) {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        {done && <p className="text-xs text-green-700">All sessions cleared.</p>}
+        {done && <p className="text-xs text-emerald-400">All sessions cleared.</p>}
         <Button
           variant="outline"
           onClick={() => setShowConfirm(true)}
@@ -356,7 +356,7 @@ function ClearSessionsButton({ siteId }: { siteId: string }) {
 
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 space-y-4">
+          <div className="bg-[#1d2026] border border-border rounded-lg p-6 max-w-sm w-full mx-4 space-y-4">
             <h3 className="font-semibold">Clear all sessions?</h3>
             <p className="text-sm text-muted-foreground">
               Every active End User session will be invalidated immediately. They will need to
@@ -429,7 +429,7 @@ function DeleteSiteButton({ siteId, domain }: { siteId: string; domain: string }
 
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4 space-y-4">
+          <div className="bg-[#1d2026] border border-border rounded-lg p-6 max-w-sm w-full mx-4 space-y-4">
             <h3 className="font-semibold text-destructive">Delete site?</h3>
             <p className="text-sm text-muted-foreground">
               This will permanently delete <strong>{domain}</strong> and all its data including

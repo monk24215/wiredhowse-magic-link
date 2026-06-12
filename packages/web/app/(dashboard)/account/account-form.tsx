@@ -145,13 +145,13 @@ export function AccountForm({ profile }: AccountFormProps) {
           <div className="space-y-2">
             <Label>Sign-in method</Label>
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e8612c]/15 text-[#ffb494] ring-1 ring-[#e8612c]/30">
                 {AUTH_METHOD_LABEL[profile.auth_method]}
               </span>
               {profile.email_verified_at ? (
-                <span className="text-xs text-green-700">Email verified</span>
+                <span className="text-xs text-emerald-400">Email verified</span>
               ) : (
-                <span className="text-xs text-yellow-700">Email not verified</span>
+                <span className="text-xs text-amber-400">Email not verified</span>
               )}
             </div>
           </div>

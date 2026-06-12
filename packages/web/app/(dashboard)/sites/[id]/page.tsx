@@ -30,9 +30,9 @@ interface SiteMetrics {
 }
 
 const STATE_BADGE: Record<SiteDetail['state'], string> = {
-  pending_verification: 'bg-yellow-100 text-yellow-800',
-  live: 'bg-green-100 text-green-800',
-  disabled: 'bg-gray-100 text-gray-600',
+  pending_verification: 'bg-amber-400/10 text-amber-400 ring-1 ring-amber-400/30',
+  live: 'bg-emerald-400/10 text-emerald-400 ring-1 ring-emerald-400/30',
+  disabled: 'bg-[#2a2e37]/50 text-[#777e8b] ring-1 ring-[#2a2e37]',
 };
 
 const STATE_LABEL: Record<SiteDetail['state'], string> = {
