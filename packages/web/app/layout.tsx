@@ -42,7 +42,33 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       lang="en"
       className={`${bebasNeue.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}
     >
-      <body>{children}</body>
+      <body>
+        {/* Fixed viewport background — logo perfectly centered, max 810px, behind all content */}
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: -1,
+            pointerEvents: 'none',
+          }}
+        >
+          <img
+            src="https://magic-link.wiredhowse.app/logo.png"
+            alt=""
+            style={{
+              width: '810px',
+              maxWidth: '810px',
+              opacity: 0.07,
+              userSelect: 'none',
+            }}
+          />
+        </div>
+        {children}
+      </body>
     </html>
   );
 }
