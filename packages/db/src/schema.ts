@@ -114,6 +114,10 @@ export const endUsers = pgTable('end_users', {
   metadata: jsonb('metadata').notNull().default(sql`'{}'::jsonb`),
   createdAt: tstz('created_at').notNull().default(sql`now()`),
   lastSeenAt: tstz('last_seen_at'),
+  // 10 = visitor, 30 = member; integer so future types slot in without a schema change.
+  typeValue: integer('type_value').notNull().default(10),
+  // 10 = Yellow (lowest), 70 = White (highest); intermediate values reserved.
+  levelValue: integer('level_value').notNull().default(10),
 });
 
 // ---------------------------------------------------------------------------

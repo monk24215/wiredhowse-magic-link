@@ -8,6 +8,20 @@
       "when": 1748131200000,
       "tag": "0000_initial",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1748217600000,
+      "tag": "0001_handoff_raw_session_token",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1748304000000,
+      "tag": "0002_end_users_type_level",
+      "breakpoints": true
     }
   ]
 }
