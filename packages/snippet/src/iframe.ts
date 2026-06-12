@@ -123,7 +123,7 @@ export function showAuthIframe(options: IframeOptions): Promise<void> {
     backdrop.style.cssText = [
       'position:absolute',
       'inset:0',
-      'background:rgba(0,0,0,0.55)',
+      'background:rgba(0,0,0,0.72)',
       'cursor:pointer',
     ].join(';');
     backdrop.setAttribute('aria-hidden', 'true');

@@ -115,11 +115,20 @@ body{
   display:flex;
   flex-direction:column;
   gap:16px;
-  background:rgba(14,15,18,0.75);
+  background:rgba(14,15,18,0.90);
   border:1px solid rgba(42,46,55,0.7);
   border-radius:12px;
   backdrop-filter:blur(16px);
   -webkit-backdrop-filter:blur(16px);
+}
+.wh-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url('https://magic-link.wiredhowse.app/logo.png') center/contain no-repeat;
+  opacity:0.07;
+  pointer-events:none;
+  border-radius:12px;
 }
 .wh-brand{
   font-size:12px;
@@ -130,10 +139,17 @@ body{
   text-align:center;
 }
 .wh-headline{
-  font-size:20px;
+  font-size:22px;
   font-weight:700;
-  line-height:1.35;
+  line-height:1.3;
   color:#f2f3f5;
+  text-align:center;
+}
+.wh-form-desc{
+  font-size:16px;
+  color:#aeb4bf;
+  line-height:1.5;
+  text-align:center;
 }
 .wh-subtext{
   font-size:14px;
@@ -330,11 +346,15 @@ function renderEmailForm(
   loading: boolean,
   errorText: string | null,
 ): void {
-  // Headline
+  // Headline + description
   const headline = el('div', 'wh-headline');
-  const customMsg = params.message?.trim();
-  headline.appendChild(txt(customMsg || 'Enter your email to continue'));
+  headline.appendChild(txt('Verification Required'));
   container.appendChild(headline);
+
+  const desc = el('div', 'wh-form-desc');
+  const customMsg = params.message?.trim();
+  desc.appendChild(txt(customMsg || 'Enter Your Email to Get Your One-Time Access Link'));
+  container.appendChild(desc);
 
   // Inline error alert
   if (errorText) {
