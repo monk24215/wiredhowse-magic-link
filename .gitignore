@@ -13,6 +13,7 @@ install.php
 
 # Environment files (NEVER commit these)
 .env
+.env.config
 .env.local
 .env.*.local
 .local.env
