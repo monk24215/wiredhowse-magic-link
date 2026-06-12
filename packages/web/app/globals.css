@@ -115,6 +115,18 @@ body {
     padding-bottom: 72px;
 }
 
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url(https://magic-link.wiredhowse.app/logo.png);
+    background-size: cover;
+    background-position: center;
+    opacity: 0.32;
+    transform: scale(1.04);
+    transition: opacity 1.5s ease;
+}
+
 .px-3 {
     font-family: var(--body);
     font-size: 12px;
