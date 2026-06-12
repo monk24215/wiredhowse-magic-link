@@ -23,6 +23,8 @@ export interface IframeOptions {
   message?: string;
   redirectTo?: string;
   apiBase: string;
+  /** When true the user can close the modal without authenticating. Default: false (hard gate). */
+  dismissible?: boolean;
 }
 
 // IDs used for DOM lookup across show/hide calls.
@@ -98,6 +100,9 @@ export function showAuthIframe(options: IframeOptions): Promise<void> {
     uiUrl.searchParams.set('origin', window.location.origin);
     if (options.redirectTo !== undefined) {
       uiUrl.searchParams.set('redirect_to', options.redirectTo);
+    }
+    if (options.dismissible === true) {
+      uiUrl.searchParams.set('dismissible', '1');
     }
 
     // -----------------------------------------------------------------------
@@ -220,8 +225,10 @@ export function showAuthIframe(options: IframeOptions): Promise<void> {
 
     window.addEventListener('message', handleMessage);
 
-    // Backdrop click = user dismissed the overlay.
-    backdrop.addEventListener('click', () => settle('resolve'));
+    // Backdrop click dismisses only when the modal is explicitly dismissible.
+    if (options.dismissible === true) {
+      backdrop.addEventListener('click', () => settle('resolve'));
+    }
   });
 }
 

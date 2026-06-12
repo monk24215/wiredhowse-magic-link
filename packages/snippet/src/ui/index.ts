@@ -51,6 +51,8 @@ interface UiParams {
   redirectTo: string | null;
   /** Optional custom headline/intro text from wh:options. */
   message: string | null;
+  /** When false (default) the modal is a hard gate — no close button, backdrop non-dismissible. */
+  dismissible: boolean;
 }
 
 function readParams(): UiParams {
@@ -60,6 +62,7 @@ function readParams(): UiParams {
     parentOrigin: p.get('origin') ?? '',
     redirectTo: p.get('redirect_to'),
     message: null, // overridden by wh:options
+    dismissible: p.get('dismissible') === '1',
   };
 }
 
@@ -231,10 +234,11 @@ body{
 }
 .wh-retry:hover{color:#ffb494}
 .wh-footer{
-  font-size:11px;
+  font-size:10px;
   color:#5a6070;
   text-align:center;
   padding-top:4px;
+  line-height:1.4;
 }
 `;
 
@@ -304,14 +308,15 @@ function render(s: UiState): void {
   // Clear existing card contents.
   while (cardEl.firstChild) cardEl.removeChild(cardEl.firstChild);
 
-  // Close button — always present.
-  const closeBtn = el('button', 'wh-close');
-  closeBtn.setAttribute('type', 'button');
-  closeBtn.setAttribute('aria-label', 'Close');
-  // Unicode × character — no external icon needed.
-  closeBtn.appendChild(txt('×'));
-  closeBtn.addEventListener('click', dismiss);
-  cardEl.appendChild(closeBtn);
+  // Close button — only shown when the modal is explicitly dismissible.
+  if (params.dismissible) {
+    const closeBtn = el('button', 'wh-close');
+    closeBtn.setAttribute('type', 'button');
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.appendChild(txt('×'));
+    closeBtn.addEventListener('click', dismiss);
+    cardEl.appendChild(closeBtn);
+  }
 
   // Brand label.
   const brand = el('div', 'wh-brand');
@@ -409,7 +414,7 @@ function renderEmailForm(
 
   // Footer
   const footer = el('div', 'wh-footer');
-  footer.appendChild(txt(`Magic link auth by wiredHowse v${__VERSION__}`));
+  footer.appendChild(txt('Secure your site for free with magic-Link | community use service from WiredHowse Builders Cooperative'));
   container.appendChild(footer);
 
   // Focus the email input (unless we're in the loading state).
@@ -450,7 +455,7 @@ function renderSentState(container: HTMLElement, email: string): void {
   container.appendChild(retryRow);
 
   const footer = el('div', 'wh-footer');
-  footer.appendChild(txt(`Magic link auth by wiredHowse v${__VERSION__}`));
+  footer.appendChild(txt('Secure your site for free with magic-Link | community use service from WiredHowse Builders Cooperative'));
   container.appendChild(footer);
 }
 
