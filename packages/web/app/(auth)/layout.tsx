@@ -5,9 +5,9 @@ import type { ReactNode } from 'react';
  */
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
       <div className="mb-8 text-center">
-        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#e8612c]">
+        <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[#e46432]">
           wiredHowse
         </span>
       </div>

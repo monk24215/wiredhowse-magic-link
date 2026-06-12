@@ -43,7 +43,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       className={`${bebasNeue.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}
     >
       <body>
-        {/* Fixed viewport background — logo perfectly centered, max 810px, behind all content */}
+        {/* Fixed viewport background — logo perfectly centered, max 810px, stays in place on every page */}
         <div
           aria-hidden="true"
           style={{
@@ -52,7 +52,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: -1,
+            zIndex: 0,
             pointerEvents: 'none',
           }}
         >
@@ -67,7 +67,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             }}
           />
         </div>
-        {children}
+        {/* All page content sits above the fixed background logo */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {children}
+        </div>
       </body>
     </html>
   );
