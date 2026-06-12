@@ -17,6 +17,19 @@
   --radius-md: 0.5rem;
   --radius-sm: 0.25rem;
   --radius-lg: 0.75rem;
+    --bg: #0e0f12;
+    --surface: #16181d;
+    --surface-2: #1d2026;
+    --line: #2a2e37;
+    --ink: #f2f3f5;
+    --ink-2: #aeb4bf;
+    --ink-3: #777e8b;
+    --accent: #e8612c;
+    --accent-ink: #ffb494;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'DM Sans', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --r: 10px;
 }
 
 body {
@@ -33,4 +46,15 @@ body::before {
              } 
 body > * { 
   position: relative; z-index: 1; 
+}
+
+
+.px-3 {
+    font-family: var(--body);
+    font-size: 12px;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: #2b2c30;
+    margin-bottom: 1rem;
+    font-weight: 900;
 }
