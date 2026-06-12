@@ -37,39 +37,42 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   const emailVerified = profile.email_verified_at !== null;
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="w-56 border-r bg-background flex flex-col p-4 gap-1 shrink-0">
-        <div className="mb-6">
-          <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
-            wiredHowse
-          </span>
-          <p className="text-xs text-muted-foreground mt-1 truncate">{profile.email}</p>
-        </div>
 
-        <nav className="flex flex-col gap-1">
-          <Link
-            href="/sites"
-            className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
-          >
-            Sites
-          </Link>
-          <Link
-            href="/account"
-            className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
-          >
-            Account
-          </Link>
-        </nav>
 
-        <div className="mt-auto">
-          <SignOutButton />
-        </div>
-      </aside>
-
-      <main className="flex-1 overflow-auto">
-        {!emailVerified && <UnverifiedBanner />}
-        <div className="p-6">{children}</div>
-      </main>
+<div className="flex min-h-screen">
+  <aside className="w-56 border-r bg-background flex flex-col p-4 gap-1 shrink-0">
+    <div className="mb-6">
+      <img
+        src="https://magic-link.wiredhowse.app/logo.png"
+        alt="wiredHowse"
+        className="h-8 w-auto mb-3"/>
+      <span className="text-xs font-semibold tracking-widest uppercase text-muted-foreground">
+        wiredHowse
+      </span>
+      <p className="text-xs text-muted-foreground mt-1 truncate">{profile.email}</p>
     </div>
+    <nav className="flex flex-col gap-1">
+      <Link href="/sites"
+        className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors">
+        Sites
+      </Link>
+      <Link
+        href="/account"
+        className="px-3 py-2 text-sm rounded-md hover:bg-muted transition-colors"
+      >
+        Account
+      </Link>
+    </nav>
+    <div className="mt-auto">
+      <SignOutButton />
+    </div>
+  </aside>
+  <main className="flex-1 overflow-auto">
+    {!emailVerified && <UnverifiedBanner />}
+    <div className="p-6">{children}</div>
+  </main>
+</div>
+
+    
   );
 }
