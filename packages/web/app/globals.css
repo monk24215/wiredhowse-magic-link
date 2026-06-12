@@ -93,37 +93,7 @@ body > * {
 }
 
 
-body {
-    background: var(--dark);
-    color: var(--text);
-    font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 1.6;
-    font-weight: 400;
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-}
 
-
-.hero-content-wrap {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    padding-top: calc(var(--nav-height) + 48px);
-    padding-bottom: 72px;
-}
-
-
-.hero-bg {
-    position: absolute;
-    inset: 0;
-    background-image: url('https://magic-link.wiredhowse.app/logo.png');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.32;
-    transform: scale(1.04);
-    transition: opacity 1.5s ease;
-}
 
 .px-3 {
     font-family: var(--body);
