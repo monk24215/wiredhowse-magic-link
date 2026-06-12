@@ -264,7 +264,7 @@ export async function googleAuthRoutes(app: FastifyInstance): Promise<void> {
       'Site Owner authenticated via Google',
     );
 
-    const returnTo = stateRow.returnTo ?? '/dashboard';
+    const returnTo = stateRow.returnTo ?? '/sites';
     return reply.code(302).redirect(`${config.SITE_URL}${returnTo}`);
   });
 }
