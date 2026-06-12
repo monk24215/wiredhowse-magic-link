@@ -49,7 +49,7 @@ export async function googleAuthRoutes(app: FastifyInstance): Promise<void> {
 
     // returnTo can be passed as a query param for post-auth redirect.
     const query = request.query as Record<string, string>;
-    const returnTo = typeof query.return_to === 'string' ? query.return_to : '/sites';
+    const returnTo = typeof query.return_to === 'string' ? query.return_to : '/dashboard';
 
     await db.insert(oauthState).values({
       state: stateToken,
@@ -264,7 +264,7 @@ export async function googleAuthRoutes(app: FastifyInstance): Promise<void> {
       'Site Owner authenticated via Google',
     );
 
-    const returnTo = stateRow.returnTo ?? '/sites';
+    const returnTo = stateRow.returnTo ?? '/dashboard';
     return reply.code(302).redirect(`${config.SITE_URL}${returnTo}`);
   });
 }
