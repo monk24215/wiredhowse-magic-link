@@ -30,16 +30,7 @@
     --body: 'DM Sans', sans-serif;
     --mono: 'JetBrains Mono', monospace;
     --r: 10px;
-}
-
-:root {
-    --accent: #c3ab7e;
-    --accent-light: #d4bf96;
-    --accent-dim: rgba(195, 171, 126, 0.12);
-    --accent-border: rgba(195, 171, 126, 0.3);
-}
-:root {
-    --dark: #0a0a0f;
+   --dark: #0a0a0f;
     --dark2: #111118;
     --dark3: #1a1a24;
     --dark4: #0d0d15;
@@ -76,7 +67,14 @@
     --radius-lg: 12px;
     --trans-fast: 0.15s ease;
     --trans-med: 0.3s ease;
+    --accent: #c3ab7e;
+    --accent-light: #d4bf96;
+    --accent-dim: rgba(195, 171, 126, 0.12);
+    --accent-border: rgba(195, 171, 126, 0.3);
+  
+  
 }
+
 
 body {
   background-color: var(--color-background);
@@ -119,7 +117,7 @@ body {
 .hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url(https://magic-link.wiredhowse.app/logo.png);
+    background-image: url('https://magic-link.wiredhowse.app/logo.png');
     background-size: cover;
     background-position: center;
     opacity: 0.32;
@@ -129,10 +127,9 @@ body {
 
 .px-3 {
     font-family: var(--body);
-    font-size: 12px;
+    font-size: 10.8px;
     letter-spacing: .05em;
     text-transform: uppercase;
     color: #2b2c30;
-    margin-bottom: 1rem;
-    font-weight: 900;
+    font-weight: 700;
 }
