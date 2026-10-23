@@ -2,11 +2,16 @@ FROM node:20-alpine AS base
 RUN corepack enable
 
 # ── Install deps ──────────────────────────────────────────────────────────────
+# pnpm-lock.yaml lists every workspace importer; all five package.json files
+# must be present for --frozen-lockfile to succeed.
 FROM base AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY packages/web/package.json ./packages/web/
+COPY packages/api/package.json ./packages/api/
+COPY packages/db/package.json ./packages/db/
 COPY packages/shared/package.json ./packages/shared/
+COPY packages/snippet/package.json ./packages/snippet/
+COPY packages/web/package.json ./packages/web/
 RUN pnpm install --frozen-lockfile
 
 # ── Build ─────────────────────────────────────────────────────────────────────
@@ -40,10 +45,6 @@ COPY --from=builder /app/packages/web/.next ./packages/web/.next
 COPY --from=builder /app/packages/web/public ./packages/web/public
 COPY --from=builder /app/packages/web/package.json ./packages/web/
 COPY --from=builder /app/packages/web/next.config.ts ./packages/web/
-
-# @wiredhowse/shared is listed as a dep but not used at runtime in web
-# (imported only as TypeScript types; no runtime require() in any web file).
-# No workspace package copy needed for web runner.
 
 EXPOSE 3000
 ENV PORT=3000
