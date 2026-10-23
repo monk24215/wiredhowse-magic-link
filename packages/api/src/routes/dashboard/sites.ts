@@ -6,9 +6,9 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { send400, send404, sendError } from '../../errors';
 import { nowUtc } from '../../lib/time';
+import { PLAN_LIMITS } from '../../lib/plans';
 
 const SNIPPET_BASE_URL = 'https://magic-link.wiredhowse.app';
-const SITE_LIMIT = 3;
 
 function buildSnippetTag(siteKey: string): string {
   return `<script src="${SNIPPET_BASE_URL}/v1/snippet.js" data-site-key="${siteKey}" defer></script>`;
@@ -105,12 +105,13 @@ export async function siteRoutes(app: FastifyInstance): Promise<void> {
       .from(sites)
       .where(eq(sites.siteOwnerId, owner.id));
 
-    if ((countRow?.count ?? 0) >= SITE_LIMIT) {
+    const siteLimit = PLAN_LIMITS[owner.plan].sites;
+    if ((countRow?.count ?? 0) >= siteLimit) {
       sendError(
         reply,
         400,
         ErrorCode.SITE_LIMIT_REACHED,
-        'You have reached the maximum of 3 sites',
+        `You have reached the maximum of ${siteLimit} sites on the ${owner.plan} plan`,
       );
       return;
     }

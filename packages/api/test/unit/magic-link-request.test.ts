@@ -29,6 +29,10 @@ vi.mock('@wiredhowse/db', () => ({
   magicLinks: {},
 }));
 
+vi.mock('../../src/services/plan-usage', () => ({
+  checkMonthlyUserCap: vi.fn().mockResolvedValue({ allowed: true, plan: 'free', used: 0, limit: 500 }),
+}));
+
 vi.mock('../../src/services/email', () => ({
   sendMagicLinkEmail: vi.fn().mockResolvedValue({ id: 'email_123' }),
 }));

@@ -7,6 +7,7 @@ import { generateToken, hashToken } from '../../lib/crypto';
 import { hashBytes, hashForLog } from '../../lib/hashing';
 import { addSeconds, nowUtc } from '../../lib/time';
 import { applySnippetCors } from '../../middleware/cors';
+import { checkMonthlyUserCap } from '../../services/plan-usage';
 import { sendMagicLinkEmail } from '../../services/email';
 import {
   checkMagicLinkPerEmail,
@@ -41,6 +42,18 @@ export async function magicLinkRequestRoutes(app: FastifyInstance): Promise<void
         403,
         ErrorCode.SITE_DISABLED,
         'This site is not currently accepting authentication requests',
+      );
+      return;
+    }
+
+    // Plan cap: monthly active End Users for the owner (Free 500 / Pro 10,000)
+    const cap = await checkMonthlyUserCap(site.siteOwnerId);
+    if (!cap.allowed) {
+      sendError(
+        reply,
+        429,
+        ErrorCode.PLAN_LIMIT_REACHED,
+        'This site has reached its monthly user limit for its plan',
       );
       return;
     }

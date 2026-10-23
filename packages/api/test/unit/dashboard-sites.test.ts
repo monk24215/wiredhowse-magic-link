@@ -138,6 +138,7 @@ const { registerGlobalErrorHandler } = await import('../../src/errors');
 const OWNER = {
   id: 'so_owner001',
   email: 'owner@example.com',
+  plan: 'free' as const,
   passwordHash: 'hash',
   authMethod: 'password',
   emailVerifiedAt: new Date('2024-01-01'),

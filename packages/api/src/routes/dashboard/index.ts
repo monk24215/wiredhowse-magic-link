@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { requireSiteOwnerSession } from '../../middleware/auth-owner';
 import { requireCsrfToken } from '../../middleware/csrf';
 import { accountRoutes } from './account';
+import { billingRoutes } from './billing';
 import { siteMetricsRoutes } from './site-metrics';
 import { siteVerifyRoutes } from './site-verify';
 import { siteRoutes } from './sites';
@@ -20,4 +21,5 @@ export async function dashboardRoutes(app: FastifyInstance): Promise<void> {
   void app.register(siteVerifyRoutes, { prefix: '/sites' });
   void app.register(siteMetricsRoutes, { prefix: '/sites' });
   void app.register(accountRoutes);
+  void app.register(billingRoutes, { prefix: '/billing' });
 }

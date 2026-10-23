@@ -9,6 +9,7 @@ import { authRoutes } from './routes/auth/index';
 import { dashboardRoutes } from './routes/dashboard/index';
 import { healthRoutes } from './routes/health';
 import { emailWebhookRoutes } from './routes/internal/email-webhook';
+import { stripeWebhookRoutes } from './routes/internal/stripe-webhook';
 import { identityRoutes } from './routes/identity/index';
 import { meRoutes } from './routes/me/index';
 import { magicRoutes } from './routes/magic/index';
@@ -71,6 +72,9 @@ void server.register(identityRoutes, { prefix: '/v1/identity' });
 
 // Internal webhook receiver — Resend bounce/complaint/delay events
 void server.register(emailWebhookRoutes, { prefix: '/v1/internal' });
+
+// Stripe subscription webhook — signature-verified, raw body
+void server.register(stripeWebhookRoutes, { prefix: '/v1/internal' });
 
 const start = async (): Promise<void> => {
   try {

@@ -18,6 +18,10 @@ const configSchema = z.object({
   // Google OAuth (optional — OAuth routes return 501 if absent)
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
+  // Stripe billing (optional — billing routes return 501 if absent)
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_PRO: z.string().optional(),
   // Cookie domain restriction (optional — set to magic-link.wiredhowse.app in prod)
   SESSION_COOKIE_DOMAIN: z.string().optional(),
 });
