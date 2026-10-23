@@ -46,6 +46,8 @@ export const siteOwnerAuthMethodEnum = pgEnum('site_owner_auth_method', [
   'both',
 ]);
 
+export const siteOwnerPlanEnum = pgEnum('site_owner_plan', ['free', 'pro']);
+
 // ---------------------------------------------------------------------------
 // site_owners
 // Developer who registers an account and embeds the snippet.
@@ -65,6 +67,11 @@ export const siteOwners = pgTable(
     lastLoginAt: tstz('last_login_at'),
     failedLoginCount: integer('failed_login_count').notNull().default(0),
     lockedUntil: tstz('locked_until'),
+    plan: siteOwnerPlanEnum('plan').notNull().default('free'),
+    planStatus: text('plan_status'),
+    planPeriodEnd: tstz('plan_period_end'),
+    stripeCustomerId: text('stripe_customer_id').unique(),
+    stripeSubscriptionId: text('stripe_subscription_id').unique(),
   },
   (t) => ({
     googleSubIdx: index('idx_site_owners_google_sub')
